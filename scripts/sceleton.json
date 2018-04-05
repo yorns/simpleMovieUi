@@ -1,0 +1,15 @@
+{
+  "name": %name%,
+  "desc": "",
+  "url": %fullname%,,
+  "img": "",
+  "categories": [
+    "movies",
+    "serien",
+    "Liebesfilm",
+    "Komödie",
+    "Action",
+    "Kinder",
+    "Staffel"
+  ]
+}
