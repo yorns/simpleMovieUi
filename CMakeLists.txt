@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.1.0)
+project(simpleMovieUi VERSION 1.0 LANGUAGES CXX)
 
+cmake_minimum_required(VERSION 3.1.0)
 include(GNUInstallDirs)
 
 set(UI_SRC startNcurses5.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h)
