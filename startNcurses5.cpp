@@ -67,23 +67,28 @@ int main(int argc, char* argv[]) {
 
     Gui gui;
     snc::Client client("cec_receiver", service, "127.0.0.1", 12001);
+    snc::Client mounter("ui_db", service, "127.0.0.1", 12001);
 
-    log << "reading database\n" << std::flush;
-    std::string databaseName{argc == 2 ? argv[1] : "database.json"};
+//    log << "reading database\n" << std::flush;
+//    std::string databaseName{argc == 2 ? argv[1] : "database.json"};
 
     Database database;
-    database.readjson(databaseName);
+//    database.readjson(databaseName);
 
     Controller controller(service, gui, database, log);
 
     KeyHit keyHit;
 
+    mounter.recvHandler([&](const std::string &nick, const std::string &line) {
+        database.readjson(line);
+        controller.handler(Key::refresh);
+    });
 
     client.recvHandler([&](const std::string &nick, const std::string &line) {
         Key key = getKey(line, controller.getBlockedKey());
         log << "get key: input: " << line << " received: " << int(key) << "\n" << std::flush;
         if (!controller.handler(key)) {
-            service.post([&]() { client.stop(); keyHit.stop(); });
+            service.post([&]() { client.stop(); mounter.stop(); keyHit.stop(); });
 
         }
     });
@@ -91,7 +96,7 @@ int main(int argc, char* argv[]) {
     keyHit.setKeyReceiver([&](char in_key) {
         Key key = getKey(in_key);
         if (!controller.handler(key)) {
-            service.post([&]() { client.stop(); keyHit.stop(); });
+            service.post([&]() { client.stop(); mounter.stop(); keyHit.stop(); });
         }
     });
 

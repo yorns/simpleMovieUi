@@ -8,6 +8,7 @@ enum class Key {
     left,
     exit,
     select,
+    refresh,
     unknown
 };
 

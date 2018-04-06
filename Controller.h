@@ -93,6 +93,12 @@ public:
                 break;
             }
 
+            case Key::refresh: {
+                std::tie(list, idList, last) = database.db_select(position);
+                highlight = 0;
+                break;
+            }
+
             case Key::exit: {
                 log << "EXIT\n" << std::flush;
                 stop = true;
