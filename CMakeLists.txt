@@ -14,7 +14,7 @@ find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread)
 
 find_library(snc_client_LIBRARIES NAMES snc_client)
 find_path(snc_client_INCLUDE_DIRS NAMES snc/client.h)
-find_library(NCURSESW_LIBRARIES NAMES ncurses)
+find_library(NCURSESW_LIBRARIES NAMES ncursesw)
 
 message(STATUS "using ncurses from ${NCURSESW_LIBRARIES}")
 
