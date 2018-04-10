@@ -1,0 +1,15 @@
+[Unit]
+Description=cec_sender
+Requires=snc-broker.service
+After=snc-broker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sender "cec-sender" cec_receiver "keypress:"
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
