@@ -79,11 +79,9 @@ public:
                 if (last) {
                     gui.blank();
                     std::string cmd(
-                            "omxplayer \"/media/usb2/" + database.getUrl(idList[highlight]) + "\" > /tmp/ui.log 2>&1");
+                            "omxplayer \"/media/usb2/" + database.getFullUrl(idList[highlight]) + "\" > /tmp/ui.log 2>&1");
                     system(cmd.c_str());
-                    //sleep(3);
                     gui.unblank();
-//                    gui.statusView("playing: " + database.getUrl(idList[highlight]) + " done");
                 } else {
                     position.push_back(list[highlight]);
                     std::tie(list, idList, last) = database.db_select(position);

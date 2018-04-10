@@ -3,12 +3,7 @@
 # only .profile (or .bash_profile or .bash_login) is sourced.
 
 setfont /home/root/Lat15-TerminusBold32x16.psf.gz
-sleep 2
-mount /dev/sda1 /media/usb2
-if [ ! -e /media/usb2/database ] ; then
-  /home/root/ui /media/usb2/database.json
-else
-  echo "No database available"
-fi
+/usr/bin/ui
+/usr/bin/db_find_on_mount /run/media
 bash
  

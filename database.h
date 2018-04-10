@@ -29,6 +29,7 @@ protected:
 
 public:
 
+    std::string getFullUrl(uint32_t id) const { return movie_db[id].basePath + movie_db[id].url; }
     std::string getUrl(uint32_t id) const { return movie_db[id].url; }
     std::string getDescription(uint32_t id) const { return movie_db[id].description; }
     std::string getImageUrl(uint32_t id) const { return movie_db[id].bg_url; }
@@ -36,7 +37,7 @@ public:
     std::string getName(uint32_t id) const { return movie_db[id].name; }
 
     std::tuple<std::vector<std::string>, std::vector<uint32_t>, bool> db_select(std::vector<std::string> selector);
-    bool readjson(const std::string& filename);
+    bool readjson(const std::string& filepath);
 
 };
 

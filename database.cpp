@@ -41,7 +41,7 @@ std::tuple<std::vector<std::string>, std::vector<uint32_t>, bool> Database::db_s
     return std::make_tuple(ret,idList,end);
 }
 
-bool Database::readjson(const std::string& filename) {
+bool Database::readjson(const std::string& filepath) {
 
     static constexpr const char *m_JsonNameTag{"name"};
     static constexpr const char *m_JsonDescTag{"desc"};
@@ -49,9 +49,11 @@ bool Database::readjson(const std::string& filename) {
     static constexpr const char *m_JsonImageTag{"img"};
     static constexpr const char *m_JsonCategoryTag{"categories"};
 
-    std::ifstream ifs(filename.c_str());
+    std::string fullName(filepath+"/database.json");
+
+    std::ifstream ifs(fullName.c_str());
     if (!ifs.is_open()) {
-        std::cerr << "could not open database\n";
+        std::cerr << "could not open database <"<<fullName<<"\n";
         return false;
     }
     nlohmann::json j;
@@ -68,6 +70,7 @@ bool Database::readjson(const std::string& filename) {
             entry.description = elem.at(m_JsonDescTag);
             entry.url = elem.at(m_JsonUrlTag);
             entry.bg_url = elem.at(m_JsonImageTag);
+            entry.basePath = filepath;
             const nlohmann::json categories = elem.at(m_JsonCategoryTag);
             for (const auto &cat : categories) {
                 entry.category.push_back(std::make_tuple<std::string, std::string>("", cat));
