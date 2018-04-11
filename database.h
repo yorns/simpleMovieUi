@@ -29,7 +29,7 @@ protected:
 
 public:
 
-    std::string getFullUrl(uint32_t id) const { return movie_db[id].basePath + movie_db[id].url; }
+    std::string getFullUrl(uint32_t id) const { return movie_db[id].basePath + "/" + movie_db[id].url; }
     std::string getUrl(uint32_t id) const { return movie_db[id].url; }
     std::string getDescription(uint32_t id) const { return movie_db[id].description; }
     std::string getImageUrl(uint32_t id) const { return movie_db[id].bg_url; }

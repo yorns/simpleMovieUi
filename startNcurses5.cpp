@@ -73,9 +73,10 @@ int main(int argc, char* argv[]) {
 //    std::string databaseName{argc == 2 ? argv[1] : "database.json"};
 
     Database database;
+    Player player;
 //    database.readjson(databaseName);
 
-    Controller controller(service, gui, database, log);
+    Controller controller(service, gui, database, player, log);
 
     KeyHit keyHit;
 

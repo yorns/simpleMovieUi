@@ -6,12 +6,14 @@
 #include "Key.h"
 #include "Gui.h"
 #include "database.h"
+#include "Player.h"
 
 class Controller {
 
     boost::asio::io_service &service;
     Gui &gui;
     Database &database;
+    Player& player;
 
     std::vector<std::string> list;
     std::vector<uint32_t> idList;
@@ -29,8 +31,8 @@ class Controller {
     std::ofstream& log;
 
 public:
-    Controller(boost::asio::io_service &_service, Gui &_gui, Database &_database,std::ofstream& _log) :
-            service(_service), gui(_gui), database(_database), timer(service), log(_log) {
+    Controller(boost::asio::io_service &_service, Gui &_gui, Database &_database, Player& _player, std::ofstream& _log) :
+            service(_service), gui(_gui), database(_database), player(_player), timer(service), log(_log) {
         std::tie(list, idList, last) = database.db_select({});
         gui.selectView(list, highlight);
         gui.positionView(position);
@@ -44,63 +46,74 @@ public:
             return true;
         }
 
-        switch (key) {
-            case Key::up: {
-                log << "UP\n" << std::flush;
-                if (highlight == 0)
-                    highlight = 0;
-                else
-                    --highlight;
-                break;
-            }
-
-            case Key::down: {
-                log << "DOWN\n" << std::flush;
-                if (highlight < list.size() - 1)
-                    ++highlight;
-                break;
-            }
-
-            case Key::left: {
-                log << "LEFT\n" << std::flush;
-                if (!position.empty()) {
-                    position.pop_back();
-                    std::tie(list, idList, last) = database.db_select(position);
-                    highlight = 0;
-                    no--;
-                    gui.descriptionView("");
-                }
-                break;
-            }
-
-            case Key::right:
-            case Key::select: {
-                log << "RIGHT/SELECT\n" << std::flush;
-                if (last) {
-                    gui.blank();
-                    std::string cmd(
-                            "omxplayer \"/media/usb2/" + database.getFullUrl(idList[highlight]) + "\" > /tmp/ui.log 2>&1");
-                    system(cmd.c_str());
+        if (player.isPlaying()) {
+            switch (key) {
+                case Key::exit: {
+                    player.stop();
                     gui.unblank();
-                } else {
-                    position.push_back(list[highlight]);
+                }
+            }
+        }
+        else {
+            switch (key) {
+                case Key::up: {
+                    log << "UP\n" << std::flush;
+                    if (highlight == 0)
+                        highlight = 0;
+                    else
+                        --highlight;
+                    break;
+                }
+
+                case Key::down: {
+                    log << "DOWN\n" << std::flush;
+                    if (highlight < list.size() - 1)
+                        ++highlight;
+                    break;
+                }
+
+                case Key::left: {
+                    log << "LEFT\n" << std::flush;
+                    if (!position.empty()) {
+                        position.pop_back();
+                        std::tie(list, idList, last) = database.db_select(position);
+                        highlight = 0;
+                        no--;
+                        gui.descriptionView("");
+                    }
+                    break;
+                }
+
+                case Key::right:
+                case Key::select: {
+                    log << "RIGHT/SELECT\n" << std::flush;
+                    if (last) {
+                        gui.blank();
+                        player.startPlay(database.getFullUrl(idList[highlight]));
+//                    std::string cmd(
+//                            "omxplayer \"" + database.getFullUrl(idList[highlight]) + "\" > /tmp/ui.log 2>&1");
+//                    system(cmd.c_str());
+//                    gui.unblank();
+                    } else {
+                        position.push_back(list[highlight]);
+                        std::tie(list, idList, last) = database.db_select(position);
+                        highlight = 0;
+                        no++;
+                    }
+                    break;
+                }
+
+                case Key::refresh: {
                     std::tie(list, idList, last) = database.db_select(position);
                     highlight = 0;
-                    no++;
+                    break;
                 }
-                break;
-            }
 
-            case Key::refresh: {
-                std::tie(list, idList, last) = database.db_select(position);
-                highlight = 0;
-                break;
-            }
-
-            case Key::exit: {
-                log << "EXIT\n" << std::flush;
-                stop = true;
-                break;
+                case Key::exit: {
+                    log << "EXIT\n" << std::flush;
+                    stop = true;
+                    break;
+                }
             }
         }
 

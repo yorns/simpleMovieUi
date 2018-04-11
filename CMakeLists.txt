@@ -4,7 +4,7 @@ project(simpleMovieUi VERSION 1.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-set(UI_SRC startNcurses5.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h)
+set(UI_SRC startNcurses5.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.h)
 
 if(EXISTS /opt/boost/include/boost/function.hpp)
     set(BOOST_ROOT /opt/boost)

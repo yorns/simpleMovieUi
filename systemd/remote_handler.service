@@ -5,7 +5,7 @@ After=snc-broker.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/sender "cec-sender" cec_receiver "keypress:"
+ExecStart=/usr/bin/sender "cec-sender" cec_receiver "keypress"
 
 Restart=on-failure
 RestartSec=5
