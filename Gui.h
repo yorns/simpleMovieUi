@@ -21,6 +21,7 @@ class Gui {
     std::unique_ptr<WINDOW, std::function<void(WINDOW*)>> m_positionWin;
     std::unique_ptr<WINDOW, std::function<void(WINDOW*)>> m_descWin;
     std::unique_ptr<WINDOW, std::function<void(WINDOW*)>> m_blankWin;
+    std::unique_ptr<WINDOW, std::function<void(WINDOW*)>> m_nothingAvail;
 
 public:
     Gui();
@@ -30,6 +31,7 @@ public:
     void selectView(const std::vector<std::string> &list, uint32_t select);
     void statusView(const std::string& str);
     void positionView(const std::vector<std::string>& items);
+    void nothingAvailable(const std::string& str);
 
     void blank();
     void unblank();

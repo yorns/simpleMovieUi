@@ -7,11 +7,13 @@
 #include <functional>
 #include <thread>
 #include <iostream>
+#include <ncurses.h>
 
 typedef std::function<void(char key)> KeyFunc;
 
 class KeyHit {
 
+  WINDOW* w;
   KeyFunc m_keyFunc;
   bool m_stop;
   struct termios m_term;
@@ -23,7 +25,7 @@ class KeyHit {
     m_term.c_lflag &= ~ICANON;
     m_term.c_lflag &= ~ECHO;
     m_term.c_cc[VMIN] = 1;
-    m_term.c_cc[VTIME] = 0;
+    m_term.c_cc[VTIME] = 1;
     if (tcsetattr(0, TCSANOW, &m_term) < 0)
       perror("tcsetattr ICANOW");
   }
@@ -37,25 +39,34 @@ class KeyHit {
 
   void readLine()
   {
-    char buf(0);
-    if (read(0, &buf, 1) < 0) {
-      if (errno != EAGAIN)
-        perror("read()");
-      else
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    else
-      if (m_keyFunc) {
-          m_keyFunc(buf);
+      int c = getch();
+      if (m_keyFunc && c != 0) {
+          m_keyFunc((char)c);
       }
+
+//
+//    char buf(0);
+//    if (read(0, &buf, 1) < 0) {
+//      if (errno != EAGAIN)
+//        perror("read()");
+//      else
+//        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//    }
+//    else
+//      if (m_keyFunc) {
+//          m_keyFunc(buf);
+//      }
   }
+
   void start() {
     th = std::thread([this]() {
-      setTerminal();
-      while (!m_stop)
-        readLine();
-      resetTerminal();
-      std::cout << "done with terminal\n";
+        // not sure if setting terminal is ok within ncurses
+//      setTerminal();
+      while (!m_stop) {
+          readLine();
+      }
+//      resetTerminal();
+      std::cout << "\ndone with terminal\n\n";
     });
   }
 
@@ -63,6 +74,8 @@ public:
   KeyHit()
   : m_stop(false) {
     m_term = {0};
+      w = initscr();
+      timeout(100);
     start();
   }
 
@@ -71,8 +84,10 @@ public:
   void stop() {
     // is called from context where start was called
     m_stop = true;
+    std::cout << "\nstopping\n\n";
     if (th.joinable())
       th.join();
+    endwin();
   }
 
 

@@ -13,6 +13,9 @@ Gui::Gui() {
     int starty  {3};
 
     curs_set(0);
+    noecho();
+    cbreak();	/* Line buffering disabled. pass on everything */
+    timeout(1);
 
     init_color(COLOR_RED, 200, 200, 200);
     init_color(COLOR_BLACK, 0, 0, 0);
@@ -27,6 +30,11 @@ Gui::Gui() {
     m_statusWin = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(1,m_fullWinWidth -10, m_fullWinHeight-2,5),[](WINDOW* w){ delwin(w);});
     m_positionWin = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(1,(m_fullWinWidth/2)-5, 1,5),[](WINDOW* w){ delwin(w);});
     m_descWin = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(6,(m_fullWinWidth/2)-5, m_fullWinHeight-8, (m_fullWinWidth/2)+2 ),[](WINDOW* w){ delwin(w);});
+
+    wtimeout(m_selectWin.get(),1);
+    wtimeout(m_statusWin.get(), 1);
+    wtimeout(m_positionWin.get(), 1);
+    wtimeout(m_descWin.get(), 1);
 
     bkgd(COLOR_PAIR(3));
     wbkgd(m_selectWin.get(), COLOR_PAIR(3));
@@ -151,9 +159,8 @@ void Gui::positionView(const std::vector<std::string> &items) {
 void Gui::blank() {
     m_blankWin = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(m_fullWinHeight, m_fullWinWidth, 0, 0),[](WINDOW* w){ delwin(w);});
     wbkgd(m_blankWin.get(), COLOR_PAIR(3));
+    werase(m_blankWin.get());
     wrefresh(m_blankWin.get());
-    erase();
-    refresh();
 }
 
 void Gui::unblank() {
@@ -166,4 +173,12 @@ void Gui::unblank() {
 
 Gui::~Gui() {
     endwin();
+}
+
+void Gui::nothingAvailable(const std::string &str) {
+    m_nothingAvail = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(3, str.length()+2, m_fullWinHeight/2-1, m_fullWinWidth/2-str.length()/2-1),[](WINDOW* w){ delwin(w);});
+    wbkgd(m_nothingAvail.get(), COLOR_PAIR(3));
+    werase(m_nothingAvail.get());
+    mvwprintw(m_nothingAvail.get(), 0, 0, "%s",str.c_str());
+    wrefresh(m_nothingAvail.get());
 }

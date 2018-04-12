@@ -41,10 +41,19 @@ public:
 
     bool handler(const Key &key) {
 
+        if (database.empty()) {
+            gui.nothingAvailable("Bitte Daten einstecken");
+            return true;
+        }
+        else {
+            gui.nothingAvailable("                      ");
+        }
+
         if (key == Key::unknown) {
             log << "Key is unknown or blocked\n" << std::flush;
             return true;
         }
+
 
         if (player.isPlaying()) {
             switch (key) {
@@ -87,13 +96,12 @@ public:
                 case Key::right:
                 case Key::select: {
                     log << "RIGHT/SELECT\n" << std::flush;
+                    if (idList.empty())
+                        break;
+
                     if (last) {
                         gui.blank();
                         player.startPlay(database.getFullUrl(idList[highlight]));
-//                    std::string cmd(
-//                            "omxplayer \"" + database.getFullUrl(idList[highlight]) + "\" > /tmp/ui.log 2>&1");
-//                    system(cmd.c_str());
-//                    gui.unblank();
                     } else {
                         position.push_back(list[highlight]);
                         std::tie(list, idList, last) = database.db_select(position);

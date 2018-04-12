@@ -11,7 +11,7 @@
 #include "KeyHit.h"
 #include "database.h"
 #include "Controller.h"
-
+#include "const.h"
 
 Key getKey(const std::string& keyString, Key timerBlocked) {
     Key key{Key::unknown};
@@ -61,7 +61,18 @@ int main(int argc, char* argv[]) {
 
     std::setlocale(LC_ALL, "de_DE.UTF-8");
 
-    std::ofstream log("/tmp/ui.log");
+    std::string logFile;
+    if (argc==1) {
+        logFile = UIConst::default_logpath;
+    }
+    else {
+        if (argc == 2)
+            logFile = argv[1];
+        else
+            std::cerr << "usage "<<argv[0]<<" [logfile path]";
+    }
+
+    std::ofstream log(logFile+"/ui.log");
     if (!log.is_open())
         abort();
 
@@ -69,12 +80,8 @@ int main(int argc, char* argv[]) {
     snc::Client client("cec_receiver", service, "127.0.0.1", 12001);
     snc::Client mounter("ui_db", service, "127.0.0.1", 12001);
 
-//    log << "reading database\n" << std::flush;
-//    std::string databaseName{argc == 2 ? argv[1] : "database.json"};
-
     Database database;
-    Player player;
-//    database.readjson(databaseName);
+    Player player(logFile);
 
     Controller controller(service, gui, database, player, log);
 

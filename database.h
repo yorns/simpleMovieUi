@@ -38,6 +38,7 @@ public:
 
     std::tuple<std::vector<std::string>, std::vector<uint32_t>, bool> db_select(std::vector<std::string> selector);
     bool readjson(const std::string& filepath);
+    bool empty() { return movie_db.empty(); }
 
 };
 

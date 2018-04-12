@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # should be installed into /usr/bin/
 LOG=/tmp/db_mnt.log
 #name="`basename "$DEVNAME"`"
