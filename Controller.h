@@ -41,86 +41,80 @@ public:
 
     bool handler(const Key &key) {
 
-        if (database.empty()) {
-            gui.nothingAvailable("Bitte Daten einstecken");
-            return true;
-        }
-        else {
-            gui.nothingAvailable("                      ");
-        }
+        if (key != Key::unknown) {
 
-        if (key == Key::unknown) {
-            log << "Key is unknown or blocked\n" << std::flush;
-            return true;
-        }
-
-
-        if (player.isPlaying()) {
-            switch (key) {
-                case Key::exit: {
-                    player.stop();
-                    gui.unblank();
-                }
-            }
-        }
-        else {
-            switch (key) {
-                case Key::up: {
-                    log << "UP\n" << std::flush;
-                    if (highlight == 0)
-                        highlight = 0;
-                    else
-                        --highlight;
-                    break;
-                }
-
-                case Key::down: {
-                    log << "DOWN\n" << std::flush;
-                    if (highlight < list.size() - 1)
-                        ++highlight;
-                    break;
-                }
-
-                case Key::left: {
-                    log << "LEFT\n" << std::flush;
-                    if (!position.empty()) {
-                        position.pop_back();
-                        std::tie(list, idList, last) = database.db_select(position);
-                        highlight = 0;
-                        no--;
-                        gui.descriptionView("");
+            if (player.isPlaying()) {
+                switch (key) {
+                    case Key::exit: {
+                        player.stop();
+                        gui.unblank();
                     }
-                    break;
                 }
-
-                case Key::right:
-                case Key::select: {
-                    log << "RIGHT/SELECT\n" << std::flush;
-                    if (idList.empty())
+            } else {
+                switch (key) {
+                    case Key::up: {
+                        log << "UP\n" << std::flush;
+                        if (highlight == 0)
+                            highlight = 0;
+                        else
+                            --highlight;
                         break;
+                    }
 
-                    if (last) {
-                        gui.blank();
-                        player.startPlay(database.getFullUrl(idList[highlight]));
-                    } else {
-                        position.push_back(list[highlight]);
+                    case Key::down: {
+                        log << "DOWN\n" << std::flush;
+                        if (highlight < list.size() - 1)
+                            ++highlight;
+                        break;
+                    }
+
+                    case Key::left: {
+                        log << "LEFT\n" << std::flush;
+                        if (!position.empty()) {
+                            std::string upper_select = position.back();
+                            position.pop_back();
+                            std::tie(list, idList, last) = database.db_select(position);
+                            highlight = 0;
+                            for (auto i : list) {
+                                if (i == upper_select)
+                                    break;
+                                highlight++;
+                            }
+                            no--;
+                            gui.descriptionView("");
+                        }
+                        break;
+                    }
+
+                    case Key::right:
+                    case Key::select: {
+                        log << "RIGHT/SELECT\n" << std::flush;
+                        if (idList.empty())
+                            break;
+
+                        if (last) {
+                            gui.blank();
+                            player.startPlay(database.getFullUrl(idList[highlight]));
+                        } else {
+                            position.push_back(list[highlight]);
+                            std::tie(list, idList, last) = database.db_select(position);
+                            highlight = 0;
+                            no++;
+                        }
+                        break;
+                    }
+
+                    case Key::refresh: {
                         std::tie(list, idList, last) = database.db_select(position);
                         highlight = 0;
-                        no++;
+                        break;
                     }
-                    break;
-                }
 
-                case Key::refresh: {
-                    std::tie(list, idList, last) = database.db_select(position);
-                    highlight = 0;
-                    break;
-                }
-
-                case Key::exit: {
-                    log << "EXIT\n" << std::flush;
-                    stop = true;
-                    break;
+                    case Key::exit: {
+                        log << "EXIT\n" << std::flush;
+                        stop = true;
+                        break;
+                    }
                 }
             }
         }
@@ -134,12 +128,20 @@ public:
 
         blockedKey = key;
 
-        if (last) {
-            gui.descriptionView(database.getDescription(idList[highlight]));
+        if (!player.isPlaying()) {
+            if (database.empty()) {
+                gui.blank();
+                gui.info("Bitte Daten einstecken");
+            }
+            else {
+                gui.uninfo();
+                if (last) {
+                    gui.descriptionView(database.getDescription(idList[highlight]));
+                }
+                gui.selectView(list, highlight);
+                gui.positionView(position);
+            }
         }
-        gui.selectView(list, highlight);
-        gui.positionView(position);
-
         return !stop;
     }
 

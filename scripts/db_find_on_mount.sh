@@ -20,7 +20,7 @@ if [ -d "$db_root_dir" ]; then
     filename=$(basename "$i")
     pathname=$(dirname "$i")
     pname=`echo "$pathname" | sed 's@'"$db_root_dir/"'@@g'`
-    echo /usr/bin/sender "echo $pathname" ui_db >> $LOG
-    /usr/bin/sender "echo $pathname" ui_db
+    echo /usr/bin/sender "echo add $pathname" ui_db >> $LOG
+    /usr/bin/sender "echo add $pathname" ui_db
   done
 fi

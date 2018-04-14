@@ -175,10 +175,11 @@ Gui::~Gui() {
     endwin();
 }
 
-void Gui::nothingAvailable(const std::string &str) {
-    m_nothingAvail = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(3, str.length()+2, m_fullWinHeight/2-1, m_fullWinWidth/2-str.length()/2-1),[](WINDOW* w){ delwin(w);});
-    wbkgd(m_nothingAvail.get(), COLOR_PAIR(3));
-    werase(m_nothingAvail.get());
-    mvwprintw(m_nothingAvail.get(), 0, 0, "%s",str.c_str());
-    wrefresh(m_nothingAvail.get());
+void Gui::info(const std::string &str) {
+    m_info = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(3, str.length()+2, m_fullWinHeight/2-1, m_fullWinWidth/2-str.length()/2-1),[](WINDOW* w){ delwin(w);});
+    wbkgd(m_info.get(), COLOR_PAIR(3));
+    werase(m_info.get());
+    mvwprintw(m_info.get(), 0, 0, "%s",str.c_str());
+    wrefresh(m_info.get());
 }
+

@@ -4,7 +4,7 @@ project(simpleMovieUi VERSION 1.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-set(UI_SRC startNcurses5.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.h)
+set(UI_SRC startNcurses5.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.cpp)
 
 if(EXISTS /opt/boost/include/boost/function.hpp)
     set(BOOST_ROOT /opt/boost)
@@ -29,6 +29,15 @@ set_target_properties(ui PROPERTIES
 target_include_directories(ui PUBLIC /usr/local/include/lohmann ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 target_compile_options(ui PUBLIC -O0 -g)
 target_link_libraries(ui ${NCURSESW_LIBRARIES} ${snc_client_LIBRARIES} ${Boost_LIBRARIES} pthread)
+
+add_executable(nameDescriptionMatcher nameDescriptionMatcher.cpp)
+set_target_properties(nameDescriptionMatcher PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+        )
+target_link_libraries(nameDescriptionMatcher ${Boost_LIBRARIES} pthread)
+
 
 install(TARGETS ui
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

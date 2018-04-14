@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     snc::Client client("cec_receiver", service, "127.0.0.1", 12001);
     snc::Client mounter("ui_db", service, "127.0.0.1", 12001);
 
-    Database database;
+    Database database(log);
     Player player(logFile);
 
     Controller controller(service, gui, database, player, log);
@@ -88,8 +88,20 @@ int main(int argc, char* argv[]) {
     KeyHit keyHit;
 
     mounter.recvHandler([&](const std::string &nick, const std::string &line) {
-        database.readjson(line);
-        controller.handler(Key::refresh);
+        if (line.length()< 5)
+            return;
+        std::string action {line.substr(0,3)};
+        std::string path {line.substr(4)};
+        if (action == "add") {
+            log << "add paths with "<<path<<"\n"<<std::flush;
+            database.insertJson(path);
+            controller.handler(Key::refresh);
+        }
+        if (action == "sub") {
+            log << "remove paths with "<<path<<"\n"<<std::flush;
+            database.removePartial(path);
+            controller.handler(Key::refresh);
+        }
     });
 
     client.recvHandler([&](const std::string &nick, const std::string &line) {
@@ -113,6 +125,8 @@ int main(int argc, char* argv[]) {
     //    database.addjson(filename)
 
     service.run();
+
+    log << "finished\n" << std::flush;
 
     return (0);
 }

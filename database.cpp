@@ -41,7 +41,7 @@ std::tuple<std::vector<std::string>, std::vector<uint32_t>, bool> Database::db_s
     return std::make_tuple(ret,idList,end);
 }
 
-bool Database::readjson(const std::string& filepath) {
+bool Database::insertJson(const std::string &filepath) {
 
     static constexpr const char *m_JsonNameTag{"name"};
     static constexpr const char *m_JsonDescTag{"desc"};
@@ -81,5 +81,27 @@ bool Database::readjson(const std::string& filepath) {
         entry.id = idCounter++;
         movie_db.push_back(entry);
     }
+    for (auto i : movie_db) {
+        m_log << "add <"<<i.name<<"> "<<i.basePath<<"\n";
+    }
+    m_log << "add: movies size: " << movie_db.size()<<"\n"<<std::flush;
     return startId != idCounter;
+}
+
+bool Database::removePartial(const std::string &filepath) {
+    movie_db.erase(
+            std::remove_if(
+                    movie_db.begin(),
+                    movie_db.end(),
+                    [&](Entry &elem) -> bool {
+                        m_log << "is "<<elem.basePath<<" == "<<filepath<<"\n"<<std::flush;
+                        if (elem.basePath == filepath)
+                            m_log << "remove "<<elem.name<<std::endl;
+                        return elem.basePath == filepath;
+                    }), movie_db.end()
+    );
+    m_log << "sub: movies size: " << movie_db.size()<<"\n"<<std::flush;
+    for (auto i : movie_db) {
+        m_log << "sub <"<<i.name<<"> "<<i.basePath<<"\n";
+    }
 }
