@@ -111,8 +111,8 @@ public:
                     }
 
                     case Key::exit: {
-                        log << "EXIT\n" << std::flush;
-                        stop = true;
+                        log << "EXIT - do nothing actually\n" << std::flush;
+                        //stop = true;
                         break;
                     }
                 }
@@ -122,24 +122,25 @@ public:
         timer.cancel();
         timer.expires_from_now(boost::posix_time::microseconds(300));
         timer.async_wait([&](const boost::system::error_code &error) {
-            log << "unset blocked key " << int(blockedKey) << "\n" << std::flush;
+//            log << "unset blocked key " << int(blockedKey) << "\n" << std::flush;
             blockedKey = Key::unknown;
         });
 
-        blockedKey = key;
+        if (key != Key::unknown) {
+            blockedKey = key;
 
-        if (!player.isPlaying()) {
-            if (database.empty()) {
-                gui.blank();
-                gui.info("Bitte Daten einstecken");
-            }
-            else {
-                gui.uninfo();
-                if (last) {
-                    gui.descriptionView(database.getDescription(idList[highlight]));
+            if (!player.isPlaying()) {
+                if (database.empty()) {
+                    gui.blank();
+                    gui.info("Bitte Daten einstecken");
+                } else {
+                    gui.uninfo();
+                    if (last) {
+                        gui.descriptionView(database.getDescription(idList[highlight]));
+                    }
+                    gui.selectView(list, highlight);
+                    gui.positionView(position);
                 }
-                gui.selectView(list, highlight);
-                gui.positionView(position);
             }
         }
         return !stop;

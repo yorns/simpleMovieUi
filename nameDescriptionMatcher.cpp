@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include "json/json.hpp"
+#include "database.h"
 #include <regex>
 #include <fstream>
 #include <sstream>
@@ -8,33 +9,29 @@
 int main(int argc, char* argv[])
 {
 
-    if (argc != 3) {
-        std::cerr << "usage "<<argv[0]<<" <database.json> <descriptive_file>\n";
-    }
+    std::ofstream log("desc.log");
+    Database database(log);
 
-    static constexpr const char *m_JsonNameTag{"name"};
-    static constexpr const char *m_JsonDescTag{"desc"};
-    static constexpr const char *m_JsonUrlTag{"url"};
-    static constexpr const char *m_JsonImageTag{"img"};
-    static constexpr const char *m_JsonCategoryTag{"categories"};
+    if (argc != 4) {
+        std::cerr << "usage "<<argv[0]<<" <database.json> <descriptive_file> <basefilename>\n";
+    }
 
     std::string fullName{argv[1]};
     std::string descFile{argv[2]};
+    std::string basefilename{argv[3]};
 
-    std::ifstream ifs(fullName.c_str());
-    if (!ifs.is_open()) {
+    if (!database.insertJson(fullName)) {
         std::cerr << "could not open database <"<<fullName<<"\n";
         return -1;
     }
+
+    std::cerr << "read discriptive file\n";
 
     std::ifstream dfs(descFile.c_str());
     if (!dfs.is_open()) {
         std::cerr << "could not open descriptive file <"<<descFile<<"\n";
         return -1;
     }
-
-    nlohmann::json j;
-    ifs >> j;
 
     std::string name;
     std::string season;
@@ -61,6 +58,29 @@ int main(int argc, char* argv[])
             std::cerr << "Description: "<<description << "\n";
         }
 
+        if (!(name.empty() || season.empty() || episode.empty() || description.empty())) {
+
+            // calculate name
+            std::string filename = basefilename+"_S"+season+"_";
+            if (episode.length() == 1)
+                filename += "0";
+            filename += episode;
+
+            int32_t id = database.getIDbyName(filename);
+
+            if (id >= 0){
+                database.replace_name(id, name);
+                database.replace_description(id, description);
+            }
+
+            name.clear();
+            season.clear();
+            episode.clear();
+            description.clear();
+
+        }
+
+        database.write("database_rew.json");
     }
 
 }

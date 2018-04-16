@@ -32,13 +32,7 @@ public:
     void statusView(const std::string& str);
     void positionView(const std::vector<std::string>& items);
     void info(const std::string &str);
-    void uninfo() {
-        if (m_info) {
-            wclear(m_info.get());
-            wrefresh(m_info.get());
-            m_info.reset();
-        }
-    }
+    void uninfo();
     void blank();
     void unblank();
 

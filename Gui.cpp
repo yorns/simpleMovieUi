@@ -183,3 +183,11 @@ void Gui::info(const std::string &str) {
     wrefresh(m_info.get());
 }
 
+void Gui::uninfo() {
+    if (m_info) {
+        wclear(m_info.get());
+        wrefresh(m_info.get());
+        m_info.reset();
+    }
+}
+

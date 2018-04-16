@@ -124,6 +124,7 @@ int main(int argc, char* argv[]) {
     // if new data event
     //    database.addjson(filename)
 
+    service.post([&]() {controller.handler(Key::refresh);});
     service.run();
 
     log << "finished\n" << std::flush;

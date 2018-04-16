@@ -30,7 +30,7 @@ target_include_directories(ui PUBLIC /usr/local/include/lohmann ${snc_client_INC
 target_compile_options(ui PUBLIC -O0 -g)
 target_link_libraries(ui ${NCURSESW_LIBRARIES} ${snc_client_LIBRARIES} ${Boost_LIBRARIES} pthread)
 
-add_executable(nameDescriptionMatcher nameDescriptionMatcher.cpp)
+add_executable(nameDescriptionMatcher nameDescriptionMatcher.cpp database.cpp)
 set_target_properties(nameDescriptionMatcher PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES
@@ -38,6 +38,13 @@ set_target_properties(nameDescriptionMatcher PROPERTIES
         )
 target_link_libraries(nameDescriptionMatcher ${Boost_LIBRARIES} pthread)
 
+add_executable(categorieAdd categorieAdd.cpp database.cpp)
+set_target_properties(categorieAdd PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+        )
+target_link_libraries(categorieAdd ${Boost_LIBRARIES} pthread)
 
 install(TARGETS ui
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

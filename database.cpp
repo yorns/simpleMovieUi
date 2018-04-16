@@ -53,15 +53,15 @@ bool Database::insertJson(const std::string &filepath) {
 
     std::ifstream ifs(fullName.c_str());
     if (!ifs.is_open()) {
-        std::cerr << "could not open database <"<<fullName<<"\n";
+        std::cerr << "could not open database <"<<fullName<<">\n";
         return false;
     }
     nlohmann::json j;
     ifs >> j;
 
-    static int idCounter{0};
+//    static int idCounter{0};
 
-    int startId = idCounter;
+    int32_t startId {int32_t(movie_db.size())};
 
     for (const auto &elem : j) {
         Entry entry;
@@ -78,13 +78,19 @@ bool Database::insertJson(const std::string &filepath) {
         } catch (...) {
             continue;
         }
-        entry.id = idCounter++;
+//        entry.id = idCounter++;
         movie_db.push_back(entry);
     }
     for (auto i : movie_db) {
         m_log << "add <"<<i.name<<"> "<<i.basePath<<"\n";
     }
-    m_log << "add: movies size: " << movie_db.size()<<"\n"<<std::flush;
+
+    std::sort(movie_db.begin(), movie_db.end(), [](const Entry& entry1, const Entry& entry2) { return entry1.url < entry2.url; });
+
+    int32_t idCounter{0};
+    for(auto& entry : movie_db)
+        entry.id = idCounter++;
+
     return startId != idCounter;
 }
 
@@ -97,11 +103,45 @@ bool Database::removePartial(const std::string &filepath) {
                         m_log << "is "<<elem.basePath<<" == "<<filepath<<"\n"<<std::flush;
                         if (elem.basePath == filepath)
                             m_log << "remove "<<elem.name<<std::endl;
-                        return elem.basePath == filepath;
+                        return elem.basePath.find(filepath) != std::string::npos;
                     }), movie_db.end()
     );
     m_log << "sub: movies size: " << movie_db.size()<<"\n"<<std::flush;
     for (auto i : movie_db) {
         m_log << "sub <"<<i.name<<"> "<<i.basePath<<"\n";
     }
+}
+
+bool Database::write(const std::string &filename) {
+    nlohmann::json j;
+    for(const auto i : movie_db) {
+        static constexpr const char *m_JsonNameTag{"name"};
+        static constexpr const char *m_JsonDescTag{"desc"};
+        static constexpr const char *m_JsonUrlTag{"url"};
+        static constexpr const char *m_JsonImageTag{"img"};
+        static constexpr const char *m_JsonCategoryTag{"categories"};
+
+        nlohmann::json elem;
+        elem[m_JsonNameTag] = i.name;
+        elem[m_JsonDescTag] = i.description;
+        elem[m_JsonUrlTag] = i.url;
+        elem[m_JsonImageTag] = i.bg_url;
+
+        nlohmann::json categories;
+        std::vector<std::string> catList;
+        for (const auto& j : i.category) {
+            catList.push_back(std::get<1>(j));
+        }
+        elem[m_JsonCategoryTag] = catList;
+
+        j.push_back(elem);
+    }
+
+    std::ofstream ofs(filename.c_str());
+    if (!ofs.is_open()) {
+        std::cerr << "could not open database <"<<filename<<"\n";
+        return false;
+    }
+
+    ofs << j.dump(2);
 }
