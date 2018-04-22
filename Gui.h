@@ -13,8 +13,7 @@ class Gui {
 
     int m_fullWinHeight;
     int m_fullWinWidth;
-    int startx;
-    int starty;
+
 
     std::unique_ptr<WINDOW, std::function<void(WINDOW*)>> m_selectWin;
     std::unique_ptr<WINDOW, std::function<void(WINDOW*)>> m_statusWin;

@@ -4,7 +4,7 @@ project(simpleMovieUi VERSION 1.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-set(UI_SRC startNcurses5.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.cpp)
+set(UI_SRC ui_main.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.cpp)
 
 if(EXISTS /opt/boost/include/boost/function.hpp)
     set(BOOST_ROOT /opt/boost)
@@ -45,6 +45,15 @@ set_target_properties(categorieAdd PROPERTIES
         CXX_EXTENSIONS NO
         )
 target_link_libraries(categorieAdd ${Boost_LIBRARIES} pthread)
+
+add_executable(deinterlacePlayerTag deinterlacePlayerTag.cpp database.cpp)
+set_target_properties(deinterlacePlayerTag PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+        )
+target_link_libraries(deinterlacePlayerTag ${Boost_LIBRARIES} pthread)
+
 
 install(TARGETS ui
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

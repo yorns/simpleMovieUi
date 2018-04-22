@@ -52,9 +52,6 @@ Key getKey(char in_key) {
     return key;
 }
 
-
-
-
 int main(int argc, char* argv[]) {
 
     boost::asio::io_service service;
@@ -81,13 +78,13 @@ int main(int argc, char* argv[]) {
     snc::Client mounter("ui_db", service, "127.0.0.1", 12001);
 
     Database database(log);
-    Player player(logFile);
+    Player player(service, logFile);
 
     Controller controller(service, gui, database, player, log);
 
     KeyHit keyHit;
 
-    mounter.recvHandler([&](const std::string &nick, const std::string &line) {
+    auto mount_receive_handler = [&](const std::string &nick, const std::string &line) {
         if (line.length()< 5)
             return;
         std::string action {line.substr(0,3)};
@@ -102,7 +99,9 @@ int main(int argc, char* argv[]) {
             database.removePartial(path);
             controller.handler(Key::refresh);
         }
-    });
+    };
+
+    mounter.recvHandler(mount_receive_handler);
 
     client.recvHandler([&](const std::string &nick, const std::string &line) {
         Key key = getKey(line, controller.getBlockedKey());
@@ -120,9 +119,11 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    // receive database request
-    // if new data event
-    //    database.addjson(filename)
+#if 0
+    auto addInitialMounts = std::make_unique<boost::process::child>("/usr/bin/db_find_on_mount.sh", "/run/media",
+                                                                    boost::process::std_out > boost::process::null,
+    boost::process::std_err > boost::process::null);
+#endif
 
     service.post([&]() {controller.handler(Key::refresh);});
     service.run();

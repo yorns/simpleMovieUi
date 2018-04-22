@@ -1,0 +1,24 @@
+#!/bin/bash
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -d|--deinterlace)
+    DEINTERLACE="-d"
+    shift # past argument
+    ;;
+    *)    # unknown option
+    FILE="$1" # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+
+OMXPLAYER=$(which omxplayer)
+as=$($OMXPLAYER -i $FILE 2>&1 | grep deu | cut -c 15)
+if [[ "x$as" == "x" ]]; then
+  as=1
+fi
+$OMXPLAYER -b -n $as $DEINTERLACE "$FILE"
+

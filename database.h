@@ -21,6 +21,8 @@ class Database {
         std::string bg_url;
         std::vector<std::tuple<std::string, std::string>> category; // category type-name / category-name in sort-order
         std::string basePath;
+        std::string tag;
+        std::string player;
     };
 
     std::vector<Entry> movie_db;
@@ -39,6 +41,8 @@ public:
     std::string getImageUrl(uint32_t id) const { return movie_db[id].bg_url; }
     std::string getBasePath(uint32_t id) const { return movie_db[id].basePath; }
     std::string getName(uint32_t id) const { return movie_db[id].name; }
+    std::string getTag(uint32_t id) const { return movie_db[id].tag; }
+    std::string getplayer(uint32_t id) const { return movie_db[id].player; }
 
     int32_t getIDbyName(const std::string& name) {
         auto it = std::find_if(movie_db.begin(), movie_db.end(), [name](const Entry& entry){ return entry.name == name; });
@@ -65,6 +69,10 @@ public:
 
     bool clean_categories(int32_t id) {
         movie_db.at(id).category.clear();
+    }
+
+    bool add_player(int32_t id, const std::string& playName) {
+        movie_db.at(id).player = playName;
     }
 
     bool add_categorie(int32_t id, const std::string& catName) {

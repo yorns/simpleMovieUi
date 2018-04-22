@@ -48,6 +48,9 @@ bool Database::insertJson(const std::string &filepath) {
     static constexpr const char *m_JsonUrlTag{"url"};
     static constexpr const char *m_JsonImageTag{"img"};
     static constexpr const char *m_JsonCategoryTag{"categories"};
+    static constexpr const char *m_JsonTagTag{"tag"};
+    static constexpr const char *m_JsonPlayerTag{"player"};
+
 
     std::string fullName(filepath+"/database.json");
 
@@ -63,7 +66,7 @@ bool Database::insertJson(const std::string &filepath) {
 
     int32_t startId {int32_t(movie_db.size())};
 
-    for (const auto &elem : j) {
+    for (const nlohmann::json &elem : j) {
         Entry entry;
         try {
             entry.name = elem.at(m_JsonNameTag);
@@ -71,6 +74,10 @@ bool Database::insertJson(const std::string &filepath) {
             entry.url = elem.at(m_JsonUrlTag);
             entry.bg_url = elem.at(m_JsonImageTag);
             entry.basePath = filepath;
+            if (elem.find(m_JsonTagTag) != elem.end())
+                entry.tag = elem.at(m_JsonTagTag);
+            if (elem.find(m_JsonPlayerTag) != elem.end())
+                entry.player = elem.at(m_JsonPlayerTag);
             const nlohmann::json categories = elem.at(m_JsonCategoryTag);
             for (const auto &cat : categories) {
                 entry.category.push_back(std::make_tuple<std::string, std::string>("", cat));
@@ -120,12 +127,16 @@ bool Database::write(const std::string &filename) {
         static constexpr const char *m_JsonUrlTag{"url"};
         static constexpr const char *m_JsonImageTag{"img"};
         static constexpr const char *m_JsonCategoryTag{"categories"};
+        static constexpr const char *m_JsonTagTag{"tag"};
+        static constexpr const char *m_JsonPlayerTag{"player"};
 
         nlohmann::json elem;
         elem[m_JsonNameTag] = i.name;
         elem[m_JsonDescTag] = i.description;
         elem[m_JsonUrlTag] = i.url;
         elem[m_JsonImageTag] = i.bg_url;
+        elem[m_JsonTagTag] = i.tag;
+        elem[m_JsonPlayerTag] = i.player;
 
         nlohmann::json categories;
         std::vector<std::string> catList;

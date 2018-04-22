@@ -39,9 +39,25 @@ class KeyHit {
 
   void readLine()
   {
-      int c = getch();
+      int c = wgetch(w);
       if (m_keyFunc && c != 0) {
-          m_keyFunc((char)c);
+          switch (c) {
+              case KEY_UP:
+                  m_keyFunc('i');
+                    break;
+              case KEY_DOWN:
+                  m_keyFunc('m');
+                  break;
+              case KEY_LEFT:
+                  m_keyFunc('j');
+                  break;
+              case KEY_RIGHT:
+                  m_keyFunc('k');
+                  break;
+              default:
+                  m_keyFunc((char) c);
+              }
+
       }
 
 //
@@ -62,6 +78,7 @@ class KeyHit {
     th = std::thread([this]() {
         // not sure if setting terminal is ok within ncurses
 //      setTerminal();
+        keypad(w,true);
       while (!m_stop) {
           readLine();
       }
