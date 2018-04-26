@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     if (!log.is_open())
         abort();
 
-    Gui gui;
+    Gui gui(log);
     snc::Client client("cec_receiver", service, "127.0.0.1", 12001);
     snc::Client mounter("ui_db", service, "127.0.0.1", 12001);
 
@@ -118,11 +118,11 @@ int main(int argc, char* argv[]) {
         }
     });
 
-
+#ifndef RUN_ON_HOST
     auto addInitialMounts = std::make_unique<boost::process::child>("/usr/bin/db_find_on_mount.sh", "/run/media",
                                                                     boost::process::std_out > boost::process::null,
     boost::process::std_err > boost::process::null);
-
+#endif
 
     service.post([&]() {controller.handler(Key::refresh);});
     service.run();

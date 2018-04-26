@@ -38,6 +38,8 @@ class Player {
 
     void handleEnd();
 
+    std::string extractName(const std::string& fullName);
+
 public:
 
     Player(boost::asio::io_service& service, const std::string& config, const std::string &logFilePath);
@@ -53,6 +55,7 @@ public:
     bool isPlaying();
 
     void setPlayerEndCB(const std::function<void(const std::string& )>& endfunc);
+    bool hasLastStopPosition(const std::string &url);
 
     void readStopPosition();
     void writeStopPosition();

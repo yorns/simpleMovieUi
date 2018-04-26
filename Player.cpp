@@ -31,8 +31,22 @@ void Player::handleEnd()
     if (m_endfunc)
         m_service.post([this](){m_endfunc(m_stopTime);});
 
-
 }
+
+std::string Player::extractName(const std::string& fullName) {
+    std::string fileName;
+    const std::regex pattern1{"/([^/]*)\\..*$"};
+    std::smatch match1{};
+    if (std::regex_search(fullName, match1, pattern1)) {
+        fileName = match1[1].str();
+        log << "filename is <" << fileName << ">\n" << std::flush;
+    } else {
+        fileName.clear();
+        log << "cannot extract filename\n" << std::flush;
+    }
+    return fileName;
+}
+
 
 void Player::readPlayerOutput(const boost::system::error_code &ec, std::size_t size) {
 
@@ -85,15 +99,7 @@ bool Player::startPlay(const std::string &url, const std::string& playerInfo, bo
 
     m_stopTime.clear();
     // extract filename
-    const std::regex pattern1{"/([^/]*)\\..*$"};
-    std::smatch match1{};
-    if (std::regex_search(url, match1, pattern1)) {
-        filename = match1[1].str();
-        log << "filename is <" << filename << ">\n" << std::flush;
-    } else {
-        filename.clear();
-        log << "cannot extract filename\n" << std::flush;
-    }
+    filename = extractName(url);
 
     if (!filename.empty() && fromLastStop) {
         auto it = std::find_if(m_stopInfoList.begin(), m_stopInfoList.end(),
@@ -233,4 +239,26 @@ void Player::writeStopPosition() {
 
     ofs << j.dump(2);
 
+}
+
+bool Player::hasLastStopPosition(const std::string &url) {
+
+#ifndef RUN_ON_HOST
+    std::string fileName = extractName(url);
+
+    log << "Player::hasLastStopPosition: find <"<<url<<">\n"<<std::flush;
+    auto it = std::find_if(m_stopInfoList.begin(),
+                           m_stopInfoList.end(),
+                           [fileName](const StopInfoEntry& entry){ return entry.fileName == fileName; });
+
+    if (it != m_stopInfoList.end() && it->valid) {
+        log << "found it\n"<<std::flush;
+        return true;
+    }
+
+    log << "NOT found\n"<<std::flush;
+    return false;
+#else
+    return true;
+#endif
 }

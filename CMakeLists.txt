@@ -24,6 +24,9 @@ set_target_properties(ui PROPERTIES
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
         )
+if(ON_HOST)
+    target_compile_definitions(ui PUBLIC RUN_ON_HOST)
+endif()
 
 #target_include_directories(ui PUBLIC /usr/local/include/lohmann)
 target_include_directories(ui PUBLIC /usr/local/include/lohmann ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})

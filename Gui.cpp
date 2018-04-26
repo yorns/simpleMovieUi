@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
-Gui::Gui() {
+Gui::Gui(std::ofstream& _log) : log(_log) {
     initscr();
     getmaxyx(stdscr, m_fullWinHeight, m_fullWinWidth);
     start_color();
@@ -176,8 +176,12 @@ Gui::~Gui() {
 }
 
 void Gui::info(const std::string &str) {
-    m_info = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>(newwin(3, str.length()+2, m_fullWinHeight/2-1, m_fullWinWidth/2-str.length()/2-1),[](WINDOW* w){ delwin(w);});
-    wbkgd(m_info.get(), COLOR_PAIR(3));
+    if (!m_info) {
+        m_info = std::unique_ptr<WINDOW, std::function<void(WINDOW *)>>(
+                newwin(3, str.length() + 2, m_fullWinHeight / 2 - 1, m_fullWinWidth / 2 - str.length() / 2 - 1),
+                [](WINDOW *w) { delwin(w); });
+        wbkgd(m_info.get(), COLOR_PAIR(3));
+    }
     werase(m_info.get());
     mvwprintw(m_info.get(), 0, 0, "%s",str.c_str());
     wrefresh(m_info.get());
@@ -190,4 +194,69 @@ void Gui::uninfo() {
         m_info.reset();
     }
 }
+
+void Gui::yesnoDialogRemove() {
+    wclear(m_yesNoDialog.get());
+    wrefresh(m_yesNoDialog.get());
+    m_yesNoDialog.reset();
+}
+
+void Gui::yesnoDialog(const std::string &_str, Gui::YesNo select) {
+
+    std::string str;
+
+    if (!_str.empty()) {
+        str = _str;
+        // is text too long, shorten it hard
+        if (str.length() > 30)
+            str = str.substr(0, 30);
+        yesnoDialogText = str;
+    }
+    else {
+        str = yesnoDialogText;
+    }
+
+    log << "Gui::yesnoDialog: IN\n"<<std::flush;
+
+    std::string yes{"  Ja  "};
+    std::string  no{" Nein "};
+
+    int len {int(str.length()+2)};
+    int startLeft =  (m_fullWinWidth-len)/2;
+    int startTop = (m_fullWinHeight-3)/2;
+
+//    if (! m_yesNoDialog) {
+        m_yesNoDialog =
+                std::unique_ptr<WINDOW, std::function<void(WINDOW *)>>
+                        (newwin(5,len+2, startTop, startLeft),
+                         [](WINDOW *w) { delwin(w); });
+        box(m_yesNoDialog.get(), 0 , 0);
+  //  }
+
+    wbkgd(m_yesNoDialog.get(), COLOR_PAIR(3));
+
+    log << "Writing yes/no dialog message (len:"<<len<<", startLeft:"<<startLeft<<", startTop:"<<startTop<<")\n"<<std::flush;
+    mvwprintw(m_yesNoDialog.get(), 1, 2, "%s",str.c_str());
+
+    wrefresh(m_yesNoDialog.get());
+
+    int startYesLeft =  int(1.0*len/4.0-yes.length()/2.0+0.5);
+    int startNoLeft =  int(3.0*len/4.0-no.length()/2.0+0.5);
+
+    wattron(m_yesNoDialog.get(), COLOR_PAIR(3));
+    if (select == Gui::YesNo::yes) {
+        wattron(m_yesNoDialog.get(), A_REVERSE);
+        mvwprintw(m_yesNoDialog.get(), 3, startYesLeft, "%s",yes.c_str());
+        wattroff(m_yesNoDialog.get(), A_REVERSE);
+        mvwprintw(m_yesNoDialog.get(), 3, startNoLeft, "%s",no.c_str());
+    } else {
+        wattron(m_yesNoDialog.get(), A_REVERSE);
+        mvwprintw(m_yesNoDialog.get(), 3, startNoLeft, "%s",no.c_str());
+        wattroff(m_yesNoDialog.get(), A_REVERSE);
+        mvwprintw(m_yesNoDialog.get(), 3, startYesLeft, "%s",yes.c_str());
+    }
+    wattroff(m_yesNoDialog.get(), COLOR_PAIR(3));
+    wrefresh(m_yesNoDialog.get());
+}
+
 
