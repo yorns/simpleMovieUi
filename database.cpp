@@ -51,7 +51,6 @@ bool Database::insertJson(const std::string &filepath) {
     static constexpr const char *m_JsonTagTag{"tag"};
     static constexpr const char *m_JsonPlayerTag{"player"};
 
-
     std::string fullName(filepath+"/database.json");
 
     std::ifstream ifs(fullName.c_str());
@@ -61,8 +60,6 @@ bool Database::insertJson(const std::string &filepath) {
     }
     nlohmann::json j;
     ifs >> j;
-
-//    static int idCounter{0};
 
     int32_t startId {int32_t(movie_db.size())};
 
@@ -89,7 +86,7 @@ bool Database::insertJson(const std::string &filepath) {
         movie_db.push_back(entry);
     }
     for (auto i : movie_db) {
-        m_log << "add <"<<i.name<<"> "<<i.basePath<<"\n";
+        m_log << "add <"<<i.name<<"> "<<i.basePath<<"\n" << std::flush;
     }
 
     std::sort(movie_db.begin(), movie_db.end(), [](const Entry& entry1, const Entry& entry2) { return entry1.url < entry2.url; });
@@ -155,4 +152,43 @@ bool Database::write(const std::string &filename) {
     }
 
     ofs << j.dump(2);
+}
+
+int32_t Database::getIDbyName(const std::string &name) {
+    auto it = std::find_if(movie_db.begin(), movie_db.end(), [name](const Entry& entry){ return entry.name == name; });
+    if ( it != movie_db.end())
+        return it->id;
+    return -1;
+}
+
+bool Database::replace_name(int32_t id, const std::string &name) {
+    if (id < movie_db.size()) {
+        movie_db.at(id).name = name;
+        return true;
+    }
+    return false;
+}
+
+bool Database::replace_description(int32_t id, const std::string &desc) {
+    if (id < movie_db.size()) {
+        movie_db.at(id).description = desc;
+        return true;
+    }
+    return false;
+}
+
+bool Database::clean_categories(int32_t id) {
+    movie_db.at(id).category.clear();
+}
+
+bool Database::add_player(int32_t id, const std::string &playName) {
+    movie_db.at(id).player = playName;
+}
+
+bool Database::add_categorie(int32_t id, const std::string &catName) {
+    movie_db.at(id).category.push_back(std::make_tuple("",catName));
+}
+
+int32_t Database::size() const {
+    return (int32_t) movie_db.size();
 }

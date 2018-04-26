@@ -13,8 +13,10 @@
 #include "Controller.h"
 #include "const.h"
 
-Key getKey(const std::string& keyString, Key timerBlocked) {
+Key getKey(const std::string& keyString) {
+
     Key key{Key::unknown};
+
     if (keyString.find("up") != std::string::npos)
         key = Key::up;
     if (keyString.find("down") != std::string::npos)
@@ -27,9 +29,6 @@ Key getKey(const std::string& keyString, Key timerBlocked) {
         key = Key::exit;
     if (keyString.find("select") != std::string::npos)
         key = Key::select;
-
-    if (key == timerBlocked)
-        return Key::unknown;
 
     return key;
 }
@@ -46,7 +45,7 @@ Key getKey(char in_key) {
         key = Key::left;
     if (in_key == 'q')
         key = Key::exit;
-    if (in_key == 0x12)
+    if (in_key == 's')
         key = Key::select;
 
     return key;
@@ -78,7 +77,7 @@ int main(int argc, char* argv[]) {
     snc::Client mounter("ui_db", service, "127.0.0.1", 12001);
 
     Database database(log);
-    Player player(service, logFile);
+    Player player(service, "/home/root/stopPosition.dat", logFile);
 
     Controller controller(service, gui, database, player, log);
 
@@ -104,8 +103,8 @@ int main(int argc, char* argv[]) {
     mounter.recvHandler(mount_receive_handler);
 
     client.recvHandler([&](const std::string &nick, const std::string &line) {
-        Key key = getKey(line, controller.getBlockedKey());
-        log << "get key: input: " << line << " received: " << int(key) << "\n" << std::flush;
+        Key key = getKey(line);
+        log << "remote key press: <" << line << "> keyID: " << int(key) << "\n" << std::flush;
         if (!controller.handler(key)) {
             service.post([&]() { client.stop(); mounter.stop(); keyHit.stop(); });
 
@@ -119,11 +118,11 @@ int main(int argc, char* argv[]) {
         }
     });
 
-#if 0
+
     auto addInitialMounts = std::make_unique<boost::process::child>("/usr/bin/db_find_on_mount.sh", "/run/media",
                                                                     boost::process::std_out > boost::process::null,
     boost::process::std_err > boost::process::null);
-#endif
+
 
     service.post([&]() {controller.handler(Key::refresh);});
     service.run();

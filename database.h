@@ -44,44 +44,13 @@ public:
     std::string getTag(uint32_t id) const { return movie_db[id].tag; }
     std::string getplayer(uint32_t id) const { return movie_db[id].player; }
 
-    int32_t getIDbyName(const std::string& name) {
-        auto it = std::find_if(movie_db.begin(), movie_db.end(), [name](const Entry& entry){ return entry.name == name; });
-        if ( it != movie_db.end())
-            return it->id;
-        return -1;
-    }
-
-    bool replace_name(int32_t id, const std::string& name) {
-        if (id < movie_db.size()) {
-            movie_db.at(id).name = name;
-            return true;
-        }
-        return false;
-    }
-
-    bool replace_description(int32_t id, const std::string& desc) {
-        if (id < movie_db.size()) {
-            movie_db.at(id).description = desc;
-            return true;
-        }
-        return false;
-    }
-
-    bool clean_categories(int32_t id) {
-        movie_db.at(id).category.clear();
-    }
-
-    bool add_player(int32_t id, const std::string& playName) {
-        movie_db.at(id).player = playName;
-    }
-
-    bool add_categorie(int32_t id, const std::string& catName) {
-        movie_db.at(id).category.push_back(std::make_tuple("",catName));
-    }
-
-    int32_t size() const {
-        return (int32_t) movie_db.size();
-    }
+    int32_t getIDbyName(const std::string& name);
+    bool replace_name(int32_t id, const std::string& name);
+    bool replace_description(int32_t id, const std::string& desc);
+    bool clean_categories(int32_t id);
+    bool add_player(int32_t id, const std::string& playName);
+    bool add_categorie(int32_t id, const std::string& catName);
+    int32_t size() const;
 
     std::tuple<std::vector<std::string>, std::vector<uint32_t>, bool> db_select(std::vector<std::string> selector);
     bool insertJson(const std::string &filepath);

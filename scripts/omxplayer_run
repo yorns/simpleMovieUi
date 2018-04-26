@@ -8,6 +8,11 @@ case $key in
     DEINTERLACE="-d"
     shift # past argument
     ;;
+    -l)
+    POSITION="-l $2"
+    shift # past argument
+    shift # past value
+    ;;
     *)    # unknown option
     FILE="$1" # save it in an array for later
     shift # past argument
@@ -16,8 +21,8 @@ esac
 done
 
 OMXPLAYER=$(which omxplayer)
-as=$($OMXPLAYER -i $FILE 2>&1 | grep deu | cut -c 15)
-if [[ "x$as" == "x" ]]; then
+as=$($OMXPLAYER -i "$FILE" 2>&1 | grep deu | cut -c 15)
+if [[ -z $as ]]; then
   as=1
 fi
 $OMXPLAYER -b -n $as $DEINTERLACE "$FILE"

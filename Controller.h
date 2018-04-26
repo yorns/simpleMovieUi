@@ -60,12 +60,27 @@ public:
     }
 
     void keyNext() {
-        log << "RIGHT/SELECT\n" << std::flush;
+        log << "RIGHT\n" << std::flush;
         if (idList.empty())
             return;
 
         if (last) {
             player.startPlay(database.getFullUrl(idList[highlight]), database.getplayer(idList[highlight]));
+        } else {
+            position.push_back(list[highlight]);
+            std::tie(list, idList, last) = database.db_select(position);
+            highlight = 0;
+            no++;
+        }
+    }
+
+    void keySelect() {
+        log << "SELECT\n" << std::flush;
+        if (idList.empty())
+            return;
+
+        if (last) {
+            player.startPlay(database.getFullUrl(idList[highlight]), database.getplayer(idList[highlight]), true);
         } else {
             position.push_back(list[highlight]);
             std::tie(list, idList, last) = database.db_select(position);

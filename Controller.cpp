@@ -11,7 +11,11 @@ Controller::Controller(boost::asio::io_service &_service, Gui &_gui, Database &_
     gui.selectView(list, highlight);
     gui.positionView(position);
 
-    player.setPlayerEndCB([this](){ keyRefresh(); });
+    player.setPlayerEndCB([this](const std::string& endTime){
+        log << "stop time is <"<<endTime<<">\n"<<std::flush;
+        // save movie name with time
+        keyRefresh();
+    });
     m_playerHandler = {{
                                std::make_tuple(Key::exit, [this]() { player.stop(); }),
                                std::make_tuple(Key::right, [this]() { player.seek_forward(); }),
@@ -26,7 +30,7 @@ Controller::Controller(boost::asio::io_service &_service, Gui &_gui, Database &_
                            std::make_tuple(Key::left, [this]() { keyPrevious(); }),
                            std::make_tuple(Key::up, [this]() { keyUp(); }),
                            std::make_tuple(Key::down, [this]() { keyDown(); }),
-                           std::make_tuple(Key::select, [this]() { keyNext(); }),
+                           std::make_tuple(Key::select, [this]() { keySelect(); }),
                            std::make_tuple(Key::refresh, [this]() { keyRefresh(); })
                    }};
 
