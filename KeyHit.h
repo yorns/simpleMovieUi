@@ -57,21 +57,7 @@ class KeyHit {
               default:
                   m_keyFunc((char) c);
               }
-
       }
-
-//
-//    char buf(0);
-//    if (read(0, &buf, 1) < 0) {
-//      if (errno != EAGAIN)
-//        perror("read()");
-//      else
-//        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    }
-//    else
-//      if (m_keyFunc) {
-//          m_keyFunc(buf);
-//      }
   }
 
   void start() {

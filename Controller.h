@@ -20,7 +20,7 @@ class Controller {
 
     std::vector<std::string> list;
     std::vector<uint32_t> idList;
-    bool last{false};
+    std::vector<bool> last;
 
     Gui::YesNo m_yesNoSelect {Gui::YesNo::yes};
 
@@ -51,12 +51,11 @@ public:
     void keyUp();
     void keyDown();
     void keyNext();
-    void keySelect();
     void keyPrevious();
 
     void yesNoToggle();
     void yesNoSelect();
-    void yesNoRefresh();
+    void yesNoCancel();
 };
 
 

@@ -1,7 +1,3 @@
-//
-// Created by joern on 03.04.18.
-//
-
 #ifndef PROJECT_DATABASE_H
 #define PROJECT_DATABASE_H
 
@@ -30,10 +26,12 @@ class Database {
 
 protected:
 
-    void insert_if_unique(std::vector<std::string>& list, const std::string& name);
+    void insert_if_unique(std::vector<std::string>& list, std::vector<bool>& end, const std::string& name);
+
+    bool is_unique(std::vector<std::string>& list, const std::string& name);
 
 public:
-    Database(std::ofstream& log) : m_log(log){}
+    explicit Database(std::ofstream& log) : m_log(log){}
 
     std::string getFullUrl(uint32_t id) const { return movie_db[id].basePath + "/" + movie_db[id].url; }
     std::string getUrl(uint32_t id) const { return movie_db[id].url; }
@@ -52,7 +50,7 @@ public:
     bool add_categorie(int32_t id, const std::string& catName);
     int32_t size() const;
 
-    std::tuple<std::vector<std::string>, std::vector<uint32_t>, bool> db_select(std::vector<std::string> selector);
+    std::tuple<std::vector<std::string>, std::vector<uint32_t>, std::vector<bool>> db_select(std::vector<std::string> selector);
     bool insertJson(const std::string &filepath);
     bool removePartial(const std::string &filepath);
     bool empty() { return movie_db.empty(); }

@@ -5,36 +5,51 @@
 #include <iostream>
 #include "json/json.hpp"
 
-void Database::insert_if_unique(std::vector<std::string>& list, const std::string& name) {
-    if (std::find_if(list.begin(), list.end(), [name](const std::string& item){ return item==name; })==list.end())
+void Database::insert_if_unique(std::vector<std::string>& list, std::vector<bool>& end, const std::string& name) {
+    if (std::find_if(list.begin(), list.end(), [name](const std::string& item){ return item==name; })==list.end()) {
         list.push_back(name);
+        end.push_back(false);
+    }
+    else
+        m_log << "name: "<<name<<" not unique\n"<<std::flush;
 }
 
-std::tuple<std::vector<std::string>, std::vector<uint32_t>, bool> Database::db_select(std::vector<std::string> selector)
+bool Database::is_unique(std::vector<std::string>& list, const std::string& name) {
+    return std::find_if(list.begin(), list.end(), [name](const std::string& item){ return item == name; }) == list.end();
+}
+
+std::tuple<std::vector<std::string>, std::vector<uint32_t>, std::vector<bool>> Database::db_select(std::vector<std::string> selector)
 {
     std::vector<std::string> ret;
     std::vector<uint32_t> idList;
-    bool end{false};
+    std::vector<bool> end;
     for(auto& i : movie_db) {
         uint32_t cat_cnt{0};
-        bool found{true};
-        for (auto& cat : i.category) {
-            if (cat_cnt < selector.size()) {
-                if (std::get<1>(cat) != selector[cat_cnt]) {
-                    found=false;
-                    break;
+        bool found{false};
+        if (i.category.size() >= selector.size()) {
+            found = true;
+            for (auto &cat : i.category) {
+                if (cat_cnt < selector.size()) {
+                    if (std::get<1>(cat) != selector[cat_cnt]) {
+                        found = false;
+                        break;
+                    }
+                    cat_cnt++;
                 }
-                cat_cnt++;
             }
         }
         if (found) {
-            idList.push_back(i.id);
             if (selector.size() != i.category.size()) {
-                insert_if_unique(ret, std::get<1>(i.category[cat_cnt]));
+                if (is_unique(ret, std::get<1>(i.category[cat_cnt]))) {
+                    ret.push_back(std::get<1>(i.category[cat_cnt]));
+                    end.push_back(false);
+                    idList.push_back(i.id);
+                }
             }
             else {
                 ret.push_back(i.name);
-                end = true;
+                end.push_back(true);
+                idList.push_back(i.id);
             }
         }
     }

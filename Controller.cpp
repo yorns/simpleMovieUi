@@ -1,7 +1,3 @@
-//
-// Created by joern on 05.04.18.
-//
-
 #include "Controller.h"
 
 Controller::Controller(boost::asio::io_service &_service, Gui &_gui, Database &_database, Player &_player,
@@ -30,7 +26,7 @@ Controller::Controller(boost::asio::io_service &_service, Gui &_gui, Database &_
                            std::make_tuple(Key::left, [this]() { keyPrevious(); }),
                            std::make_tuple(Key::up, [this]() { keyUp(); }),
                            std::make_tuple(Key::down, [this]() { keyDown(); }),
-                           std::make_tuple(Key::select, [this]() { keySelect(); }),
+                           std::make_tuple(Key::select, [this]() { keyNext(); }),
                            std::make_tuple(Key::refresh, [this]() { keyRefresh(); })
                    }};
 
@@ -38,7 +34,8 @@ Controller::Controller(boost::asio::io_service &_service, Gui &_gui, Database &_
                            std::make_tuple(Key::right, [this]() { yesNoToggle(); }),
                            std::make_tuple(Key::left, [this]() { yesNoToggle(); }),
                            std::make_tuple(Key::select, [this]() { yesNoSelect(); }),
-                           std::make_tuple(Key::refresh, [this]() { keyRefresh(); })
+                           std::make_tuple(Key::refresh, [this]() { keyRefresh(); }),
+                           std::make_tuple(Key::exit, [this]() { yesNoCancel(); })
                    }};
 
 }
@@ -70,7 +67,7 @@ bool Controller::handler(const Key &key) {
             }
         }
         timer.cancel();
-        timer.expires_from_now(boost::posix_time::microseconds(300));
+        timer.expires_from_now(boost::posix_time::milliseconds(250));
         timer.async_wait([&](const boost::system::error_code &error) {
             blockedKey = Key::unknown;
         });
@@ -95,32 +92,18 @@ void Controller::keyDown() {
 }
 
 void Controller::keyNext() {
-    log << "RIGHT\n" << std::flush;
+    log << "RIGHT/SELECT\n" << std::flush;
     if (idList.empty())
         return;
 
-    if (last) {
+    if (last[highlight]) {
         if (player.hasLastStopPosition(database.getFullUrl(idList[highlight]))) {
             requestFromLastStartPosition = true;
             gui.yesnoDialog("An letzten Halt fortsetzen", m_yesNoSelect);
-        }
-    } else {
-        position.push_back(list[highlight]);
-        std::tie(list, idList, last) = database.db_select(position);
-        highlight = 0;
-        no++;
-    }
-}
-
-void Controller::keySelect() {
-    log << "SELECT\n" << std::flush;
-    if (idList.empty())
-        return;
-
-    if (last) {
-        if (player.hasLastStopPosition(database.getFullUrl(idList[highlight]))) {
-            requestFromLastStartPosition = true;
-            gui.yesnoDialog("Am letzten Halt fortsetzen", m_yesNoSelect);
+        } else {
+            player.startPlay(database.getFullUrl(idList[highlight]),
+                             database.getplayer(idList[highlight]),
+                             m_yesNoSelect==Gui::YesNo::yes);
         }
     } else {
         position.push_back(list[highlight]);
@@ -160,15 +143,16 @@ void Controller::keyRefresh() {
         if (requestFromLastStartPosition) {
             gui.yesnoDialog("", m_yesNoSelect);
         } else {
-            std::tie(list, idList, last) = database.db_select(position);
 
             if (m_dbEmptyFlag) {
                 highlight = 0;
                 gui.uninfo();
                 m_dbEmptyFlag = false;
+                position={};
+                std::tie(list, idList, last) = database.db_select(position);
             }
 
-            if (last) {
+            if (last[highlight]) {
                 gui.descriptionView(database.getDescription(idList[highlight]));
             }
             gui.selectView(list, highlight);
@@ -180,6 +164,11 @@ void Controller::keyRefresh() {
 
 void Controller::yesNoToggle() {
     m_yesNoSelect = (m_yesNoSelect==Gui::YesNo::yes?Gui::YesNo::no:Gui::YesNo::yes);
+}
+
+void Controller::yesNoCancel() {
+    gui.yesnoDialogRemove();
+    requestFromLastStartPosition = false;
 }
 
 void Controller::yesNoSelect() {
