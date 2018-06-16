@@ -1,8 +1,10 @@
 #ifndef SIMPLEMOVIEUI_PLAYER_H
 #define SIMPLEMOVIEUI_PLAYER_H
 
-#include <boost/process.hpp>
-#include <boost/asio.hpp>
+#include <functional>
+#include <string>
+#include <fstream>
+#include <vector>
 
 struct StopInfoEntry {
     std::string fileName;
@@ -12,47 +14,31 @@ struct StopInfoEntry {
 
 class Player {
 
-    boost::asio::io_service& m_service;
-    std::unique_ptr<boost::process::opstream> m_in;
-    std::unique_ptr<boost::process::child> child;
-
-    std::string m_stopTime;
-    std::string m_config;
-
-    bool m_playing{false};
+protected:
+    std::string m_configDbFileName;
     std::string m_logFilePath;
     std::ofstream log;
-    const char *playerName{"/usr/bin/omxplayer_run"};
-
-    std::function<void(const std::string& )> m_endfunc;
-    boost::asio::streambuf m_streambuf;
-
-    std::unique_ptr<boost::process::async_pipe> m_pipe;
-
-    void readPlayerOutput(const boost::system::error_code &ec, std::size_t size);
-
-    // file ID , stop position
     std::vector<StopInfoEntry> m_stopInfoList;
 
-    std::string filename;
-
-    void handleEnd();
-
     std::string extractName(const std::string& fullName);
+    std::function<void(const std::string& )> m_endfunc;
 
 public:
 
-    Player(boost::asio::io_service& service, const std::string& config, const std::string &logFilePath);
+    Player(const std::string& configDB, const std::string &logFilePath)
+    : m_configDbFileName(configDB), m_logFilePath(logFilePath){
+        log = std::ofstream(m_logFilePath+"/player.log");
+    }
 
-    bool startPlay(const std::string &url, const std::string& playerInfo, bool fromLastStop = false);
-    bool stop();
-    bool seek_forward();
-    bool seek_backward();
-    bool audiostream_up();
-    bool audiostream_down();
-    bool pause();
+    virtual bool startPlay(const std::string &url, const std::string& playerInfo, bool fromLastStop = false) = 0;
+    virtual bool stop() = 0;
+    virtual bool seek_forward() = 0;
+    virtual bool seek_backward() = 0;
+    virtual bool audiostream_up() = 0;
+    virtual bool audiostream_down() = 0;
+    virtual bool pause() = 0;
 
-    bool isPlaying();
+    virtual bool isPlaying() = 0;
 
     void setPlayerEndCB(const std::function<void(const std::string& )>& endfunc);
     bool hasLastStopPosition(const std::string &url);

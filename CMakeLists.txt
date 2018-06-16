@@ -4,13 +4,13 @@ project(simpleMovieUi VERSION 1.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-set(UI_SRC ui_main.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.cpp)
+set(UI_SRC ui_main.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.cpp OmxPlayer.cpp MPlayer.cpp)
 
 if(EXISTS /opt/boost/include/boost/function.hpp)
     set(BOOST_ROOT /opt/boost)
 endif()
 
-find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread)
+find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem regex)
 
 find_library(snc_client_LIBRARIES NAMES snc_client)
 find_path(snc_client_INCLUDE_DIRS NAMES snc/client.h)

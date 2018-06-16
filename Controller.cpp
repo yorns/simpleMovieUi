@@ -42,7 +42,8 @@ Controller::Controller(boost::asio::io_service &_service, Gui &_gui, Database &_
 
 bool Controller::handler(const Key &key) {
 
-    if (key != Key::unknown && key != blockedKey) {
+    // analyse keypress if this is a refresh, or this is a normal key and the key is not blocked (debouncing)
+    if (key == Key::refresh || key != Key::unknown && key != blockedKey) {
         if (player.isPlaying()) {
             const auto it = std::find_if(m_playerHandler.begin(), m_playerHandler.end(),
                                           [this, key](const auto& elem){return std::get<0>(elem) == key; });
@@ -72,6 +73,10 @@ bool Controller::handler(const Key &key) {
             blockedKey = Key::unknown;
         });
         blockedKey = key;
+    }
+    else {
+        if (key != Key::unknown)
+            log << "key: "<<int(key)<<" was debounced\n";
     }
 
     return !stop;
@@ -149,8 +154,8 @@ void Controller::keyRefresh() {
                 gui.uninfo();
                 m_dbEmptyFlag = false;
                 position={};
-                std::tie(list, idList, last) = database.db_select(position);
             }
+            std::tie(list, idList, last) = database.db_select(position);
 
             if (last[highlight]) {
                 gui.descriptionView(database.getDescription(idList[highlight]));

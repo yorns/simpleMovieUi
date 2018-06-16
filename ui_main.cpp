@@ -5,6 +5,8 @@
 #include <tuple>
 #include <fstream>
 #include <snc/client.h>
+#include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 
 #include "Key.h"
 #include "Gui.h"
@@ -12,6 +14,8 @@
 #include "database.h"
 #include "Controller.h"
 #include "const.h"
+#include "MPlayer.h"
+#include "OmxPlayer.h"
 
 Key getKey(const std::string& keyString) {
 
@@ -51,35 +55,72 @@ Key getKey(char in_key) {
     return key;
 }
 
+std::string createUiDir() {
+
+    char *_homePath = getenv("HOME");
+    std::string homePath = boost::lexical_cast<std::string>(_homePath);
+    if (homePath.empty())
+        return "";
+    std::string configPath = homePath+"/.smui";
+
+    if (boost::filesystem::is_directory(configPath))
+        return configPath;
+
+    boost::filesystem::path dir(configPath);
+    if(!boost::filesystem::create_directory(dir))
+    {
+        // an error occured
+        configPath = "";
+    }
+    return configPath;
+}
+
 int main(int argc, char* argv[]) {
 
     boost::asio::io_service service;
 
     std::setlocale(LC_ALL, "de_DE.UTF-8");
 
+    std::string configPath = createUiDir();
+    bool useMplayer{false};
+
     std::string logFile;
     if (argc==1) {
-        logFile = UIConst::default_logpath;
+        logFile = configPath;
     }
     else {
         if (argc == 2)
-            logFile = argv[1];
-        else
-            std::cerr << "usage "<<argv[0]<<" [logfile path]";
+            if (std::string(argv[1]) == "mplayer") {
+                useMplayer = true;
+                logFile = configPath;
+            }
+            else
+                logFile = argv[1];
+        else {
+            std::cerr << "usage " << argv[0] << " [logfile path]";
+            return -1;
+        }
     }
 
     std::ofstream log(logFile+"/ui.log");
-    if (!log.is_open())
+    if (!log.is_open()) {
+        std::cerr << "could not open log file <"<<logFile<<"/ui.log\n";
         abort();
+    }
 
     Gui gui(log);
     snc::Client client("cec_receiver", service, "127.0.0.1", 12001);
     snc::Client mounter("ui_db", service, "127.0.0.1", 12001);
 
     Database database(log);
-    Player player(service, "/home/root/stopPosition.dat", logFile);
+    std::unique_ptr<Player> player;
 
-    Controller controller(service, gui, database, player, log);
+    if (useMplayer)
+        player = std::unique_ptr<Player>(new MPlayer(service, configPath+"/stopPosition.dat", logFile));
+    else
+        player = std::unique_ptr<Player>(new OmxPlayer(service, configPath+"/stopPosition.dat", logFile));
+
+    Controller controller(service, gui, database, *player.get(), log);
 
     KeyHit keyHit;
 
