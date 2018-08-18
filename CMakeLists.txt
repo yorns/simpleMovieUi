@@ -4,7 +4,16 @@ project(simpleMovieUi VERSION 1.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
-set(UI_SRC ui_main.cpp database.cpp database.h KeyHit.h Gui.cpp Controller.cpp Key.h Player.cpp OmxPlayer.cpp MPlayer.cpp)
+set(UI_SRC src/ui_main.cpp
+        src/database.cpp
+        src/database.h
+        src/KeyHit.h
+        src/Gui.cpp
+        src/Controller.cpp
+        src/Key.h
+        src/Player.cpp
+        src/OmxPlayer.cpp
+        src/MPlayer.cpp)
 
 if(EXISTS /opt/boost/include/boost/function.hpp)
     set(BOOST_ROOT /opt/boost)
@@ -29,11 +38,12 @@ if(ON_HOST)
 endif()
 
 #target_include_directories(ui PUBLIC /usr/local/include/lohmann)
-target_include_directories(ui PUBLIC /usr/local/include/lohmann ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+target_include_directories(ui PUBLIC src /usr/local/include/lohmann ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 target_compile_options(ui PUBLIC -O0 -g)
 target_link_libraries(ui ${NCURSESW_LIBRARIES} ${snc_client_LIBRARIES} ${Boost_LIBRARIES} pthread)
 
-add_executable(nameDescriptionMatcher nameDescriptionMatcher.cpp database.cpp)
+add_executable(nameDescriptionMatcher src/nameDescriptionMatcher.cpp src/database.cpp)
+target_include_directories(nameDescriptionMatcher PUBLIC src)
 set_target_properties(nameDescriptionMatcher PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES
@@ -41,7 +51,8 @@ set_target_properties(nameDescriptionMatcher PROPERTIES
         )
 target_link_libraries(nameDescriptionMatcher ${Boost_LIBRARIES} pthread)
 
-add_executable(categorieAdd categorieAdd.cpp database.cpp)
+add_executable(categorieAdd categorieAdd.cpp src/database.cpp)
+target_include_directories(categorieAdd PUBLIC src)
 set_target_properties(categorieAdd PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES
@@ -49,7 +60,8 @@ set_target_properties(categorieAdd PROPERTIES
         )
 target_link_libraries(categorieAdd ${Boost_LIBRARIES} pthread)
 
-add_executable(deinterlacePlayerTag deinterlacePlayerTag.cpp database.cpp)
+add_executable(deinterlacePlayerTag src/deinterlacePlayerTag.cpp src/database.cpp)
+target_include_directories(deinterlacePlayerTag PUBLIC src)
 set_target_properties(deinterlacePlayerTag PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES

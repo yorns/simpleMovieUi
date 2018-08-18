@@ -3,7 +3,7 @@
 #include <tuple>
 #include <fstream>
 #include <iostream>
-#include "json/json.hpp"
+#include "../json/json.hpp"
 
 void Database::insert_if_unique(std::vector<std::string>& list, std::vector<bool>& end, const std::string& name) {
     if (std::find_if(list.begin(), list.end(), [name](const std::string& item){ return item==name; })==list.end()) {
@@ -74,7 +74,13 @@ bool Database::insertJson(const std::string &filepath) {
         return false;
     }
     nlohmann::json j;
-    ifs >> j;
+    try {
+        ifs >> j;
+    } catch (std::exception& exception) {
+        m_log << "cannot parse database <"<<fullName<<">"<<std::endl<<std::flush;
+        m_log << " -> " << exception.what()<<std::endl<<std::flush;
+        return false;
+    }
 
     int32_t startId {int32_t(movie_db.size())};
 
@@ -97,8 +103,11 @@ bool Database::insertJson(const std::string &filepath) {
         } catch (...) {
             continue;
         }
-//        entry.id = idCounter++;
-        movie_db.push_back(entry);
+
+        // if no dublicate insert element
+        auto duplicate = std::find_if(movie_db.begin(), movie_db.end(), [entry](const Entry e){ return e.url == entry.url && e.basePath == entry.basePath;});
+        if (duplicate==movie_db.end())
+            movie_db.push_back(entry);
     }
     for (auto i : movie_db) {
         m_log << "add <"<<i.name<<"> "<<i.basePath<<"\n" << std::flush;

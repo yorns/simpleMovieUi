@@ -1,6 +1,6 @@
 #include "OmxPlayer.h"
 #include <regex>
-#include "json/json.hpp"
+#include "../json/json.hpp"
 
 OmxPlayer::OmxPlayer(boost::asio::io_service& service, const std::string& configDB, const std::string &logFilePath) :
         Player(configDB, logFilePath), m_service(service)

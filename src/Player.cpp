@@ -1,5 +1,5 @@
 #include "Player.h"
-#include "json/json.hpp"
+#include "../json/json.hpp"
 #include <regex>
 
 void Player::setPlayerEndCB(const std::function<void(const std::string &)> &endfunc) {

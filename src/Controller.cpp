@@ -155,6 +155,7 @@ void Controller::keyRefresh() {
                 m_dbEmptyFlag = false;
                 position={};
             }
+
             std::tie(list, idList, last) = database.db_select(position);
 
             if (last[highlight]) {
