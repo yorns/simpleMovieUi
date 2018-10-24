@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
 
     if (argc != 4) {
         std::cerr << "usage "<<argv[0]<<" <database.json> <descriptive_file> <basefilename>\n";
+        return -1;
     }
 
     std::string fullName{argv[1]};
