@@ -50,6 +50,8 @@ public:
     bool add_categorie(int32_t id, const std::string& catName);
     int32_t size() const;
 
+    int32_t createEntry() { return 0; }
+    
     std::tuple<std::vector<std::string>, std::vector<uint32_t>, std::vector<bool>> db_select(std::vector<std::string> selector);
     bool insertJson(const std::string &filepath);
     bool removePartial(const std::string &filepath);
