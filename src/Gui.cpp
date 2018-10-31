@@ -77,6 +77,9 @@ void Gui::selectView(const std::vector<std::string> &list, uint32_t select) {
     int windowX, windowY;
     getmaxyx(m_selectWin.get(), windowX, windowY);
     // x must be odd
+    if ((windowX % 2) == 0 && windowX > 4) {
+        windowX -= 1;
+    }
 
     // calculation
     // 1) how many empty lines until list starts
