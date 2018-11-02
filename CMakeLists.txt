@@ -69,6 +69,16 @@ set_target_properties(deinterlacePlayerTag PROPERTIES
         )
 target_link_libraries(deinterlacePlayerTag ${Boost_LIBRARIES} pthread)
 
+add_executable(cutHtmlOnline src/cut_html_oneliner.cpp src/database.cpp)
+target_compile_options(cutHtmlOnline PUBLIC -g -O0)
+target_include_directories(cutHtmlOnline PUBLIC src)
+set_target_properties(cutHtmlOnline PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+        )
+target_link_libraries(cutHtmlOnline ${Boost_LIBRARIES} pthread)
+
 
 install(TARGETS ui
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

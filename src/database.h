@@ -6,6 +6,7 @@
 #include <cinttypes>
 #include <algorithm>
 #include "../json/json.hpp"
+#include <boost/optional.hpp>
 
 class Database {
 
@@ -45,12 +46,39 @@ public:
     int32_t getIDbyName(const std::string& name);
     bool replace_name(int32_t id, const std::string& name);
     bool replace_description(int32_t id, const std::string& desc);
+    bool replace_basePath(int32_t id, const std::string& basePath);
     bool clean_categories(int32_t id);
     bool add_player(int32_t id, const std::string& playName);
     bool add_categorie(int32_t id, const std::string& catName);
     int32_t size() const;
 
-    int32_t createEntry() { return 0; }
+    boost::optional<uint32_t> findUrl(const std::string& url) {
+        auto it = std::find_if(movie_db.begin(), movie_db.end(), [url](const Entry& entry) { return entry.url == url; });
+        if (it==movie_db.end())
+            return boost::none;
+        else
+            return it->id;
+    }
+
+    int32_t createNewEntry(const std::string& name, const std::string& desc, const std::string& url, const std::string& basePath,
+                                      const std::string& imgUrl, const std::vector<std::tuple<std::string, std::string>>& categories,
+                                      const std::string& tag, const std::string& player) {
+
+        Entry entry;
+
+        entry.id = static_cast<int32_t>(movie_db.size());
+        entry.name = name;
+        entry.description = desc;
+        entry.category = categories;
+        entry.url = url;
+        entry.tag = tag;
+        entry.bg_url = imgUrl;
+        entry.player = player;
+
+        movie_db.push_back(entry);
+
+        return entry.id;
+    }
     
     std::tuple<std::vector<std::string>, std::vector<uint32_t>, std::vector<bool>> db_select(std::vector<std::string> selector);
     bool insertJson(const std::string &filepath);
@@ -59,6 +87,5 @@ public:
 
     bool write(const std::string& filename);
 };
-
 
 #endif //PROJECT_DATABASE_H

@@ -66,7 +66,11 @@ bool Database::insertJson(const std::string &filepath) {
     static constexpr const char *m_JsonTagTag{"tag"};
     static constexpr const char *m_JsonPlayerTag{"player"};
 
-    std::string fullName(filepath+"/database.json");
+    std::string fullName(filepath);
+
+    if (fullName.substr(fullName.length()-5) != ".json") {
+        fullName += "database.json";
+    }
 
     std::ifstream ifs(fullName.c_str());
     if (!ifs.is_open()) {
