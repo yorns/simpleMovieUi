@@ -102,6 +102,11 @@ std::string getDesc(const std::string& line) {
     std::string::size_type start, end;
     std::tie(start, end) = get_start_of(line, "<p", "p");
 
+    if (start == std::string::npos) {
+        std::cerr << "was not able to find \"<p\" in \""<<line<<"\n";
+        return std::string();
+    }
+
     std::string l = std::regex_replace(line.substr(start,end-start), std::regex("<[/]*p>"), "");
 
 //  std::cerr << "<<<<<<<<<<<<<<<\n"<<l<<"\n<<<<<<<<<<<<<<<<<<<\n";
@@ -217,6 +222,7 @@ void createSeriesDatabaseEntries(const std::string& file, std::vector<Entry>& en
                 start = part_end;
             }
             if (!entry.titel.empty() && ! entry.desc.empty() && entry.series_no>0 && entry.file_no >0) {
+                std::cerr << "include ("<<entry.series_no<<" "<<entry.file_no<<") "<<entry.titel<<"\n";
                 entryList.push_back(entry);
             }
         }
