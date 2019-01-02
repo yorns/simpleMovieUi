@@ -26,6 +26,12 @@ std::string readfile(const std::string &fileName)
     return std::string(bytes.data(), fileSize);
 }
 
+std::string readcmdl()
+{
+    std::string in(std::istreambuf_iterator<char>(std::cin), std::istreambuf_iterator<char>());
+    return in;
+}
+
 std::tuple<std::string::size_type, std::string::size_type>
 get_start_of(const std::string& data, const std::string& whatToFind, std::string tag,
              std::string::size_type startPos = 0,
@@ -39,7 +45,7 @@ get_start_of(const std::string& data, const std::string& whatToFind, std::string
     std::string::size_type start = data.find(whatToFind, startPos);
 
     if (start == std::string::npos) {
-        std::cerr << "no start for \""<<whatToFind<<"\" found\n";
+        std::cerr << "no new start for \'"<<whatToFind<<"\' found\n";
         return std::make_tuple(std::string::npos,0);
     }
 
@@ -236,24 +242,42 @@ void createSeriesDatabaseEntries(const std::string& file, std::vector<Entry>& en
 int main(int argc, char* argv[])
 {
 
-    if (argc != 5) {
-        std::cerr << "usage: "<<argv[0] <<" <series name> <html-filename> <series-path> <database>\n";
+    if (argc != 5 && argc != 2) {
+        std::cerr << "usage: "<<argv[0] <<" [<series name>] <html-filename> [<series-path> <database>]\n";
         return -1;
     }
 
-    std::string seriesName{argv[1]};
-    std::string htmlFilename{argv[2]};
-    std::string seriesPath{argv[3]};
-    std::string databaseName{argv[4]};
+    bool test { argc == 2 };
 
-    std::cerr << "loading html file <"<<htmlFilename<<">\n";
-    std::string file = readfile(htmlFilename);
+    std::string seriesName{ test ? "" :argv[1]};
+    std::string htmlFilename{ test ? argv[1] : argv[2]};
+    std::string seriesPath{ test ? "" : argv[3]};
+    std::string databaseName{ test ? "" : argv[4]};
 
-    std::cerr << "load files from given path <"<<seriesPath<<">\n";
-    std::vector<std::tuple<std::string, uint32_t, uint32_t, std::string>> fileList = getFileList(seriesPath);
+    std::string file;
+    if (htmlFilename == "-") {
+        std::cerr << "loading html from standard in\n";
+        file = readcmdl();
+    }
+    else {
+        std::cerr << "loading html file <"<<htmlFilename<<">\n";
+        file = readfile(htmlFilename);
+    }
 
     std::vector<Entry> entryList;
     createSeriesDatabaseEntries(file, entryList);
+
+    for(auto it : entryList) {
+        std::cerr << " -> Series no "<<it.series_no << " file no "<< it.file_no <<" : " << it.titel << "\n";
+    }
+
+    if (test) {
+        std::cerr << "End test run\n";
+        return 0;
+    }
+
+    std::cerr << "load files from given path <"<<seriesPath<<">\n";
+    std::vector<std::tuple<std::string, uint32_t, uint32_t, std::string>> fileList = getFileList(seriesPath);
 
     std::ofstream log("desc.log");
     Database database(log);
@@ -265,10 +289,6 @@ int main(int argc, char* argv[])
     }
 
     std::cerr << "\n";
-
-    for(auto it : entryList) {
-        std::cerr << " -> Series no "<<it.series_no << " file no "<< it.file_no <<" : " << it.titel << "\n";
-    }
 
     for(auto fList_it : fileList) {
         std::string url{std::get<3>(fList_it)};
@@ -314,21 +334,6 @@ int main(int argc, char* argv[])
 
     database.write(databaseName);
 
-    // find entry of entry of the file
-    //database
-    // if there is one, do update
-
-    // if not create one
-
-
-    /*
-     *                 std::vector<std::tuple<std::string, std::string>> categories;
-                categories.push_back(std::make_tuple("","serie"));
-                categories.push_back(std::make_tuple("",display_baseName));
-                categories.push_back(std::make_tuple("", "Staffel "+std::to_string(series_no)));
-*/
-
-
-
+    return 0;
 }
 
