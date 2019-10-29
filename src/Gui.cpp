@@ -151,7 +151,9 @@ void Gui::positionView(const std::vector<std::string> &items) {
     getmaxyx(m_selectWin.get(), windowX, windowY);
 
     std::string line = str.str();
-    line += std::string(windowY-line.length(),' ');
+    if (line.length() > windowY)
+        line += std::string(windowY-line.length(),' ');
+
     wattron(m_positionWin.get(),COLOR_PAIR(3));
     mvwprintw(m_positionWin.get(), 0, 0, "%s",line.c_str());
     wattroff(m_positionWin.get(),COLOR_PAIR(3));

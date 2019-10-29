@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
     KeyHit keyHit;
 
     auto mount_receive_handler = [&](const std::string &nick, const std::string &line) {
-        if (line.length()< 5)
+        if (line.length() < 5)
             return;
         std::string action {line.substr(0,3)};
         std::string path {line.substr(4)};

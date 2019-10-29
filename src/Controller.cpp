@@ -104,7 +104,7 @@ void Controller::keyNext() {
     if (last[highlight]) {
         if (player.hasLastStopPosition(database.getFullUrl(idList[highlight]))) {
             requestFromLastStartPosition = true;
-            gui.yesnoDialog("An letzten Halt fortsetzen", m_yesNoSelect);
+            gui.yesnoDialog("An letztem Halt fortsetzen", m_yesNoSelect);
         } else {
             player.startPlay(database.getFullUrl(idList[highlight]),
                              database.getplayer(idList[highlight]),
