@@ -43,7 +43,7 @@ Controller::Controller(boost::asio::io_service &_service, Gui &_gui, Database &_
 bool Controller::handler(const Key &key) {
 
     // analyse keypress if this is a refresh, or this is a normal key and the key is not blocked (debouncing)
-    if (key == Key::refresh || key != Key::unknown && key != blockedKey) {
+    if (key == Key::refresh || (key != Key::unknown && key != blockedKey)) {
         if (player.isPlaying()) {
             const auto it = std::find_if(m_playerHandler.begin(), m_playerHandler.end(),
                                           [this, key](const auto& elem){return std::get<0>(elem) == key; });
@@ -69,7 +69,7 @@ bool Controller::handler(const Key &key) {
         }
         timer.cancel();
         timer.expires_from_now(boost::posix_time::milliseconds(250));
-        timer.async_wait([&](const boost::system::error_code &error) {
+        timer.async_wait([&](const boost::system::error_code &) {
             blockedKey = Key::unknown;
         });
         blockedKey = key;

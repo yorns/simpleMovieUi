@@ -7,11 +7,12 @@
 #include <regex>
 #include <dirent.h>
 #include <sys/types.h>
-#include <nlohmann/json.hpp>
+#include "json/json.hpp"
 #include "database.h"
 
 //#include <filesystem>
 //namespace fs = std::filesystem;
+#define UNUSED(x) [&x]{}()
 
 std::string readfile(const std::string &fileName)
 {
@@ -37,6 +38,9 @@ get_start_of(const std::string& data, const std::string& whatToFind, std::string
              std::string::size_type startPos = 0,
              std::string::size_type endPos = std::string::npos)
 {
+
+    UNUSED(endPos);
+    
     if (data[0] != '<') {
         std::cerr << "data must begin with a '<"<<tag<<"' \n";
         return std::make_tuple(std::string::npos,0);

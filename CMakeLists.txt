@@ -28,22 +28,26 @@ find_library(NCURSESW_LIBRARIES NAMES ncursesw)
 message(STATUS "using ncurses from ${NCURSESW_LIBRARIES}")
 
 add_executable(ui ${UI_SRC})
-set_target_properties(ui PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO
-        )
+
 if(ON_HOST)
     target_compile_definitions(ui PUBLIC RUN_ON_HOST)
 endif()
 
 #target_include_directories(ui PUBLIC /usr/local/include/lohmann)
-target_include_directories(ui PUBLIC src /usr/local/include/lohmann ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-target_compile_options(ui PUBLIC -O0 -g)
+target_include_directories(ui PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR} ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+target_compile_options(ui PUBLIC -O2 -Wall -Wextra)
 target_link_libraries(ui ${NCURSESW_LIBRARIES} ${snc_client_LIBRARIES} ${Boost_LIBRARIES} pthread)
+set_target_properties(ui PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+        )
 
-add_executable(nameDescriptionMatcher src/nameDescriptionMatcher.cpp src/database.cpp)
-target_include_directories(nameDescriptionMatcher PUBLIC src)
+add_executable(nameDescriptionMatcher
+        src/nameDescriptionMatcher.cpp
+        src/database.cpp)
+target_include_directories(nameDescriptionMatcher PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR} )
+target_compile_options(nameDescriptionMatcher PUBLIC -O2 -Wall -Wextra)
 set_target_properties(nameDescriptionMatcher PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES
@@ -51,8 +55,11 @@ set_target_properties(nameDescriptionMatcher PROPERTIES
         )
 target_link_libraries(nameDescriptionMatcher ${Boost_LIBRARIES} pthread)
 
-add_executable(categorieAdd categorieAdd.cpp src/database.cpp)
-target_include_directories(categorieAdd PUBLIC src)
+add_executable(categorieAdd
+        categorieAdd.cpp
+        src/database.cpp)
+target_include_directories(categorieAdd PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
+target_compile_options(categorieAdd PUBLIC -O2 -Wall -Wextra)
 set_target_properties(categorieAdd PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES
@@ -61,7 +68,8 @@ set_target_properties(categorieAdd PROPERTIES
 target_link_libraries(categorieAdd ${Boost_LIBRARIES} pthread)
 
 add_executable(deinterlacePlayerTag src/deinterlacePlayerTag.cpp src/database.cpp)
-target_include_directories(deinterlacePlayerTag PUBLIC src)
+target_include_directories(deinterlacePlayerTag PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
+target_compile_options(deinterlacePlayerTag PUBLIC -O2 -Wall -Wextra)
 set_target_properties(deinterlacePlayerTag PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES
@@ -70,8 +78,8 @@ set_target_properties(deinterlacePlayerTag PROPERTIES
 target_link_libraries(deinterlacePlayerTag ${Boost_LIBRARIES} pthread)
 
 add_executable(cutHtmlOnline src/cut_html_oneliner.cpp src/database.cpp)
-target_compile_options(cutHtmlOnline PUBLIC -g -O0)
-target_include_directories(cutHtmlOnline PUBLIC src)
+target_include_directories(cutHtmlOnline PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
+target_compile_options(cutHtmlOnline PUBLIC -O2 -Wall -Wextra)
 set_target_properties(cutHtmlOnline PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES

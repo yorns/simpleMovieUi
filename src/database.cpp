@@ -3,7 +3,7 @@
 #include <tuple>
 #include <fstream>
 #include <iostream>
-#include "../json/json.hpp"
+#include "json/json.hpp"
 
 void Database::insert_if_unique(std::vector<std::string>& list, std::vector<bool>& end, const std::string& name) {
     if (std::find_if(list.begin(), list.end(), [name](const std::string& item){ return item==name; })==list.end()) {
@@ -142,6 +142,8 @@ bool Database::removePartial(const std::string &filepath) {
     for (auto i : movie_db) {
         m_log << "sub <"<<i.name<<"> "<<i.basePath<<"\n";
     }
+
+    return true;
 }
 
 bool Database::write(const std::string &filename) {
@@ -180,6 +182,8 @@ bool Database::write(const std::string &filename) {
     }
 
     ofs << j.dump(2);
+
+    return true;
 }
 
 int32_t Database::getIDbyName(const std::string &name) {
@@ -190,7 +194,7 @@ int32_t Database::getIDbyName(const std::string &name) {
 }
 
 bool Database::replace_name(int32_t id, const std::string &name) {
-    if (id < movie_db.size()) {
+    if (id < static_cast<int32_t>(movie_db.size()) && id >= 0) {
         movie_db.at(id).name = name;
         return true;
     }
@@ -198,7 +202,7 @@ bool Database::replace_name(int32_t id, const std::string &name) {
 }
 
 bool Database::replace_description(int32_t id, const std::string &desc) {
-    if (id < movie_db.size()) {
+    if (id < static_cast<int32_t>(movie_db.size()) && id >= 0) {
         movie_db.at(id).description = desc;
         return true;
     }
@@ -206,15 +210,27 @@ bool Database::replace_description(int32_t id, const std::string &desc) {
 }
 
 bool Database::clean_categories(int32_t id) {
-    movie_db.at(id).category.clear();
+    if (id < static_cast<int32_t>(movie_db.size()) && id >= 0) {
+        movie_db.at(id).category.clear();
+        return true;
+    }
+    return false;
 }
 
 bool Database::add_player(int32_t id, const std::string &playName) {
-    movie_db.at(id).player = playName;
+    if (id < static_cast<int32_t>(movie_db.size()) && id >= 0) {
+        movie_db.at(id).player = playName;
+        return true;
+    }
+    return false;
 }
 
 bool Database::add_categorie(int32_t id, const std::string &catName) {
-    movie_db.at(id).category.push_back(std::make_tuple("",catName));
+    if (id < static_cast<int32_t>(movie_db.size()) && id >= 0) {
+        movie_db.at(id).category.push_back(std::make_tuple("", catName));
+        return true;
+    }
+    return false;
 }
 
 int32_t Database::size() const {

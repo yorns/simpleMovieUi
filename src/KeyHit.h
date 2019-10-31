@@ -76,7 +76,7 @@ class KeyHit {
 public:
   KeyHit()
   : m_stop(false) {
-    m_term = {0};
+      resetTerminal();
       w = initscr();
       timeout(100);
     start();

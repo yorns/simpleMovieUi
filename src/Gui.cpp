@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <sstream>
+#define UNUSED(x) [&x]{}()
 
 Gui::Gui(std::ofstream& _log) : log(_log) {
     initscr();
@@ -49,7 +50,7 @@ bool Gui::descriptionView(std::string desc) {
     // erase does not work as expected, so:
     // werase(win);
     std::string emptyLine(width,' ');
-    for(uint32_t i(0); i<height; ++i)
+    for(uint32_t i(0); i<static_cast<uint32_t>(height); ++i)
         mvwprintw(m_descWin.get(), i, 0, "%s",emptyLine.data());
 
     uint32_t lineCnt(0);
@@ -59,7 +60,7 @@ bool Gui::descriptionView(std::string desc) {
             lineCnt=0;
         if (desc[i] == ' ')
             lastSpace = i;
-        if (lineCnt >= width-1 && lastSpace != 0) {
+        if (lineCnt >= static_cast<uint32_t>(width-1) && lastSpace != 0) {
             desc[lastSpace] = '\n';
             lineCnt = i-lastSpace;
         }
@@ -70,6 +71,7 @@ bool Gui::descriptionView(std::string desc) {
     wattroff(m_descWin.get(),COLOR_PAIR(3));
     wrefresh(m_descWin.get());
 
+    return true;
 }
 
 void Gui::selectView(const std::vector<std::string> &list, uint32_t select) {
@@ -99,24 +101,28 @@ void Gui::selectView(const std::vector<std::string> &list, uint32_t select) {
 
     uint32_t outputCountLine(topFill);
 
+    uint32_t windowY_uint {static_cast<uint32_t>(windowY)};
+
     for(uint32_t i(window_start); i<window_end;++i) {
         std::string line = list[i];
-        if (line.length() > windowY)
+        if (line.length() > windowY_uint)
             line = line.substr(0, static_cast<unsigned long>(windowY - 5));
         uint32_t add_empty { uint32_t(windowY-line.length()) };
 
         presentList.push_back(line+std::string(add_empty,' '));
         outputCountLine++;
-        if (outputCountLine > windowX)
+        if (outputCountLine > static_cast<uint32_t>(windowX))
             break;
     }
 
-    for(;outputCountLine < windowX; ++outputCountLine) {
+    for(;outputCountLine < static_cast<uint32_t>(windowX); ++outputCountLine) {
         presentList.emplace_back(std::string(static_cast<unsigned long>(windowY), ' '));
     }
 
+    uint32_t windowX_uint {static_cast<uint32_t>(windowX)};
+
     for(uint32_t i(0); i<presentList.size(); ++i) {
-        if (i != windowX/2)
+        if (i != windowX_uint/2)
         {
             wattron(m_selectWin.get(),COLOR_PAIR(2));
             mvwprintw(m_selectWin.get(), i, 0, "%s",presentList[i].c_str());
@@ -150,8 +156,10 @@ void Gui::positionView(const std::vector<std::string> &items) {
     int windowX, windowY;
     getmaxyx(m_selectWin.get(), windowX, windowY);
 
+    UNUSED(windowX);
+
     std::string line = str.str();
-    if (line.length() > windowY)
+    if (line.length() > static_cast<uint32_t>(windowY))
         line += std::string(windowY-line.length(),' ');
 
     wattron(m_positionWin.get(),COLOR_PAIR(3));

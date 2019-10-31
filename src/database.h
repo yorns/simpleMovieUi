@@ -60,7 +60,7 @@ public:
             return it->id;
     }
 
-    int32_t createNewEntry(const std::string& name, const std::string& desc, const std::string& url, const std::string& basePath,
+    int32_t createNewEntry(const std::string& name, const std::string& desc, const std::string& url, const std::string& ,
                                       const std::string& imgUrl, const std::vector<std::tuple<std::string, std::string>>& categories,
                                       const std::string& tag, const std::string& player) {
 

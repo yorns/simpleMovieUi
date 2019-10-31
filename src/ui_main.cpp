@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
 
     KeyHit keyHit;
 
-    auto mount_receive_handler = [&](const std::string &nick, const std::string &line) {
+    auto mount_receive_handler = [&](const std::string &, const std::string &line) {
         if (line.length() < 5)
             return;
         std::string action {line.substr(0,3)};
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 
     mounter.recvHandler(mount_receive_handler);
 
-    client.recvHandler([&](const std::string &nick, const std::string &line) {
+    client.recvHandler([&](const std::string &, const std::string &line) {
         Key key = getKey(line);
         log << "remote key press: <" << line << "> keyID: " << int(key) << "\n" << std::flush;
         if (!controller.handler(key)) {

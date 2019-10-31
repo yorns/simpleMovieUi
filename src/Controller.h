@@ -28,8 +28,8 @@ class Controller {
 
     std::vector<std::string> position;
     bool stop{false};
-    int highlight = 0;
-    uint32_t no{0};
+    uint32_t highlight {0};
+    uint32_t no {0};
 
     Key blockedKey{Key::unknown};
     bool requestFromLastStartPosition {false};
