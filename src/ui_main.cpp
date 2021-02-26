@@ -60,7 +60,7 @@ std::string createUiDir() {
     char *_homePath = getenv("HOME");
     std::string homePath = boost::lexical_cast<std::string>(_homePath);
     if (homePath.empty())
-        return "";
+        homePath =  "/var/ui"; // return default
     std::string configPath = homePath+"/.smui";
 
     if (boost::filesystem::is_directory(configPath))
@@ -81,31 +81,35 @@ int main(int argc, char* argv[]) {
 
     std::setlocale(LC_ALL, "de_DE.UTF-8");
 
-    std::string configPath = createUiDir();
+    //std::string configPath;
     bool useMplayer{false};
 
-    std::string logFile;
+    std::string configPath;
     if (argc==1) {
-        logFile = configPath;
+        configPath = createUiDir();
+        if (configPath.empty()) {
+            std::cerr << "could not create config file path\n";
+            return -1;
+        }
     }
     else {
         if (argc == 2)
             if (std::string(argv[1]) == "mplayer") {
                 useMplayer = true;
-                logFile = configPath;
+                configPath = createUiDir();
             }
             else
-                logFile = argv[1];
+                configPath = argv[1];
         else {
             std::cerr << "usage " << argv[0] << " [logfile path]";
-            return -1;
+            exit(1);
         }
     }
 
-    std::ofstream log(logFile+"/ui.log");
+    std::ofstream log(configPath+"/ui.log");
     if (!log.is_open()) {
-        std::cerr << "could not open log file <"<<logFile<<"/ui.log\n";
-        abort();
+        std::cerr << "could not open log file <"<<configPath<<"/ui.log\n";
+        exit(1);
     }
 
     Gui gui(log);
@@ -116,9 +120,9 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<Player> player;
 
     if (useMplayer)
-        player = std::unique_ptr<Player>(new MPlayer(service, configPath+"/stopPosition.dat", logFile));
+        player = std::unique_ptr<Player>(new MPlayer(service, configPath+"/stopPosition.dat", configPath));
     else
-        player = std::unique_ptr<Player>(new OmxPlayer(service, configPath+"/stopPosition.dat", logFile));
+        player = std::unique_ptr<Player>(new OmxPlayer(service, configPath+"/stopPosition.dat", configPath));
 
     Controller controller(service, gui, database, *player.get(), log);
 

@@ -42,7 +42,7 @@ void Player::writeStopPosition() {
 
     nlohmann::json j;
 
-    for(const auto i : m_stopInfoList) {
+    for(const auto& i : m_stopInfoList) {
         if (i.valid) {
             nlohmann::json elem;
             elem[m_JsonNameTag] = i.fileName;
