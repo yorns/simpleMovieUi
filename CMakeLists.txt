@@ -13,11 +13,12 @@ set(UI_SRC src/ui_main.cpp
         src/Key.h
         src/Player.cpp
         src/OmxPlayer.cpp
-        src/MPlayer.cpp)
-
-if(EXISTS /opt/boost/include/boost/function.hpp)
-    set(BOOST_ROOT /opt/boost)
-endif()
+        src/MPlayer.cpp
+        src/Config.cpp
+        src/Config.h
+        src/getKey.cpp
+        src/getKey.h
+        )
 
 find_package(Boost 1.68.0 REQUIRED COMPONENTS system thread filesystem regex)
 
@@ -28,6 +29,7 @@ find_library(NCURSESW_LIBRARIES NAMES ncursesw)
 message(STATUS "using ncurses from ${NCURSESW_LIBRARIES}")
 
 add_executable(ui ${UI_SRC})
+add_executable(keysender src/keysender.cpp src/getKey.cpp)
 
 if(ON_HOST)
     target_compile_definitions(ui PUBLIC RUN_ON_HOST)
@@ -35,7 +37,7 @@ endif()
 
 #target_include_directories(ui PUBLIC /usr/local/include/lohmann)
 target_include_directories(ui PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR} ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-target_compile_options(ui PUBLIC -O2 -Wall -Wextra)
+target_compile_options(ui PUBLIC -O0 -g -Wall -Wextra)
 target_link_libraries(ui ${NCURSESW_LIBRARIES} ${snc_client_LIBRARIES} ${Boost_LIBRARIES} pthread)
 set_target_properties(ui PROPERTIES
         CXX_STANDARD 14
@@ -43,49 +45,58 @@ set_target_properties(ui PROPERTIES
         CXX_EXTENSIONS NO
         )
 
-add_executable(nameDescriptionMatcher
-        src/nameDescriptionMatcher.cpp
-        src/database.cpp)
-target_include_directories(nameDescriptionMatcher PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR} )
-target_compile_options(nameDescriptionMatcher PUBLIC -O2 -Wall -Wextra)
-set_target_properties(nameDescriptionMatcher PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO
-        )
-target_link_libraries(nameDescriptionMatcher ${Boost_LIBRARIES} pthread)
+    target_include_directories(keysender PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR} ${snc_client_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+    target_compile_options(keysender PUBLIC -O0 -g -Wall -Wextra)
+    target_link_libraries(keysender ${snc_client_LIBRARIES} ${Boost_LIBRARIES} pthread)
+    set_target_properties(ui PROPERTIES
+            CXX_STANDARD 14
+            CXX_STANDARD_REQUIRED YES
+            CXX_EXTENSIONS NO
+            )
 
-add_executable(categorieAdd
-        categorieAdd.cpp
-        src/database.cpp)
-target_include_directories(categorieAdd PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
-target_compile_options(categorieAdd PUBLIC -O2 -Wall -Wextra)
-set_target_properties(categorieAdd PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO
-        )
-target_link_libraries(categorieAdd ${Boost_LIBRARIES} pthread)
+        #add_executable(nameDescriptionMatcher
+#        src/nameDescriptionMatcher.cpp
+#        src/database.cpp)
+#target_include_directories(nameDescriptionMatcher PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR} )
+#target_compile_options(nameDescriptionMatcher PUBLIC -O2 -Wall -Wextra)
+#set_target_properties(nameDescriptionMatcher PROPERTIES
+#        CXX_STANDARD 14
+#        CXX_STANDARD_REQUIRED YES
+#        CXX_EXTENSIONS NO
+#        )
+#target_link_libraries(nameDescriptionMatcher ${Boost_LIBRARIES} pthread)
 
-add_executable(deinterlacePlayerTag src/deinterlacePlayerTag.cpp src/database.cpp)
-target_include_directories(deinterlacePlayerTag PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
-target_compile_options(deinterlacePlayerTag PUBLIC -O2 -Wall -Wextra)
-set_target_properties(deinterlacePlayerTag PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO
-        )
-target_link_libraries(deinterlacePlayerTag ${Boost_LIBRARIES} pthread)
+#add_executable(categorieAdd
+#        categorieAdd.cpp
+#        src/database.cpp)
+#target_include_directories(categorieAdd PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
+#target_compile_options(categorieAdd PUBLIC -O2 -Wall -Wextra)
+#set_target_properties(categorieAdd PROPERTIES
+#        CXX_STANDARD 14
+#        CXX_STANDARD_REQUIRED YES
+#        CXX_EXTENSIONS NO
+#        )
+#target_link_libraries(categorieAdd ${Boost_LIBRARIES} pthread)
 
-add_executable(cutHtmlOnline src/cut_html_oneliner.cpp src/database.cpp)
-target_include_directories(cutHtmlOnline PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
-target_compile_options(cutHtmlOnline PUBLIC -O2 -Wall -Wextra)
-set_target_properties(cutHtmlOnline PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO
-        )
-target_link_libraries(cutHtmlOnline ${Boost_LIBRARIES} pthread)
+#add_executable(deinterlacePlayerTag src/deinterlacePlayerTag.cpp src/database.cpp)
+#target_include_directories(deinterlacePlayerTag PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
+#target_compile_options(deinterlacePlayerTag PUBLIC -O2 -Wall -Wextra)
+#set_target_properties(deinterlacePlayerTag PROPERTIES
+#        CXX_STANDARD 14
+#        CXX_STANDARD_REQUIRED YES
+#        CXX_EXTENSIONS NO
+#        )
+#target_link_libraries(deinterlacePlayerTag ${Boost_LIBRARIES} pthread)
+
+#add_executable(cutHtmlOnline src/cut_html_oneliner.cpp src/database.cpp)
+#target_include_directories(cutHtmlOnline PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR})
+#target_compile_options(cutHtmlOnline PUBLIC -O2 -Wall -Wextra)
+#set_target_properties(cutHtmlOnline PROPERTIES
+#        CXX_STANDARD 14
+#        CXX_STANDARD_REQUIRED YES
+#        CXX_EXTENSIONS NO
+#        )
+#target_link_libraries(cutHtmlOnline ${Boost_LIBRARIES} pthread)
 
 
 install(TARGETS ui
