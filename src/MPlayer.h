@@ -29,7 +29,7 @@ class MPlayer : public Player {
 
 public:
 
-    MPlayer(boost::asio::io_service& service, const std::string& configDB, const std::string &logFilePath);
+    MPlayer(boost::asio::io_service& service);
 
     bool startPlay(const std::string &url, const std::string& playerInfo, bool fromLastStop = false) final;
     bool stop() final;

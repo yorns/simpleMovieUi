@@ -46,22 +46,23 @@ bool Controller::handler(const Key &key) {
     if (key == Key::refresh || (key != Key::unknown && key != blockedKey)) {
         if (player.isPlaying()) {
             const auto it = std::find_if(m_playerHandler.begin(), m_playerHandler.end(),
-                                          [this, key](const auto& elem){return std::get<0>(elem) == key; });
+                                          [key](const auto& elem){return std::get<0>(elem) == key; });
             if (it != m_playerHandler.end()) {
                 std::get<1>(*it)();
             }
         } else {
             if (requestFromLastStartPosition) {
                 const auto it = std::find_if(m_yesNoDialogHandler.begin(), m_yesNoDialogHandler.end(),
-                                             [this, key](const auto &elem) { return std::get<0>(elem) == key; });
+                                             [key](const auto &elem) { return std::get<0>(elem) == key; });
                 if (it != m_yesNoDialogHandler.end()) {
                     std::get<1>(*it)();
                     keyRefresh();
                 }
             } else {
                 const auto it = std::find_if(m_uiHandler.begin(), m_uiHandler.end(),
-                                             [this, key](const auto &elem) { return std::get<0>(elem) == key; });
+                                             [key](const auto &elem) { return std::get<0>(elem) == key; });
                 if (it != m_uiHandler.end()) {
+                    log << " "<<std::get<0>(*it)<<" "<< std::flush;
                     std::get<1>(*it)();
                     keyRefresh();
                 }

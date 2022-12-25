@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include "Config.h"
 
 struct StopInfoEntry {
     std::string fileName;
@@ -15,20 +16,20 @@ struct StopInfoEntry {
 class Player {
 
 protected:
-    std::string m_configDbFileName;
-    std::string m_logFilePath;
-    std::ofstream log;
     std::vector<StopInfoEntry> m_stopInfoList;
 
     std::string extractName(const std::string& fullName);
     std::function<void(const std::string& )> m_endfunc;
 
+    std::ofstream& log;
+
+    static constexpr const char *m_JsonNameTag{"movie"};
+    static constexpr const char *m_JsonStopTag{"stopTime"};
+
 public:
 
-    Player(const std::string& configDB, const std::string &logFilePath)
-    : m_configDbFileName(configDB), m_logFilePath(logFilePath){
-        log = std::ofstream(m_logFilePath+"/player.log");
-    }
+    Player() : log(systemConfig.getLogFile())
+    {}
 
     virtual bool startPlay(const std::string &url, const std::string& playerInfo, bool fromLastStop = false) = 0;
     virtual bool stop() = 0;

@@ -7,16 +7,12 @@ void Player::setPlayerEndCB(const std::function<void(const std::string &)> &endf
 }
 
 void Player::readStopPosition() {
-    static constexpr const char *m_JsonNameTag{"movie"};
-    static constexpr const char *m_JsonStopTag{"stopTime"};
 
-    std::ifstream ifs(m_configDbFileName.c_str());
-    if (!ifs.is_open()) {
-        log << "could not open database <"<<m_configDbFileName<<">\n" << std::flush;
-        return;
-    }
+    std::fstream& ifs(systemConfig.getStopPositionFile());
+
     nlohmann::json j;
-    ifs >> j;
+    if (systemConfig.hasStopPosition())
+       ifs >> j;
 
     m_stopInfoList.clear();
 
@@ -37,8 +33,6 @@ void Player::readStopPosition() {
 }
 
 void Player::writeStopPosition() {
-    static constexpr const char *m_JsonNameTag{"movie"};
-    static constexpr const char *m_JsonStopTag{"stopTime"};
 
     nlohmann::json j;
 
@@ -52,16 +46,14 @@ void Player::writeStopPosition() {
         }
     }
 
-    std::ofstream ofs(m_configDbFileName.c_str());
-    if (!ofs.is_open()) {
-        std::cerr << "could not open database <"<<m_configDbFileName<<">\n";
-    }
+    std::fstream& ofs(systemConfig.getStopPositionFile());
 
     ofs << j.dump(2);
 
 }
 
 std::string Player::extractName(const std::string& fullName) {
+
     std::string fileName;
     const std::regex pattern1{"/([^/]*)\\..*$"};
     std::smatch match1{};
@@ -79,7 +71,7 @@ bool Player::hasLastStopPosition(const std::string &url) {
 
     std::string fileName = extractName(url);
 
-    log << "Player::hasLastStopPosition: find <"<<url<<">\n"<<std::flush;
+    log << "Player::hasLastStopPosition: find file <"<<url<<"> in last position list\n"<<std::flush;
     auto it = std::find_if(m_stopInfoList.begin(),
                            m_stopInfoList.end(),
                            [fileName](const StopInfoEntry& entry){ return entry.fileName == fileName; });

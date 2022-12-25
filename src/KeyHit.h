@@ -64,7 +64,9 @@ class KeyHit {
     th = std::thread([this]() {
         // not sure if setting terminal is ok within ncurses
 //      setTerminal();
+//        nodelay(w,true);
         keypad(w,true);
+//        noecho();
       while (!m_stop) {
           readLine();
       }
@@ -80,6 +82,14 @@ public:
       w = initscr();
       timeout(100);
     start();
+  }
+
+  ~KeyHit()
+  {
+      std::cout << "\ndestructor\n\n";
+      if (th.joinable())
+        th.join();
+      endwin(); // double
   }
 
   void setKeyReceiver(const KeyFunc& keyFunc) { m_keyFunc = keyFunc; }

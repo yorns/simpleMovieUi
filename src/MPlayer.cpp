@@ -3,8 +3,8 @@
 #include <boost/regex.hpp>
 #include "../json/json.hpp"
 
-MPlayer::MPlayer(boost::asio::io_service& service, const std::string& configDB, const std::string &logFilePath) :
-        Player(configDB, logFilePath), m_service(service)
+MPlayer::MPlayer(boost::asio::io_service& service) :
+        m_service(service)
 {
     readStopPosition();
 }
