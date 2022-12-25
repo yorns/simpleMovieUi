@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+#
+# Howto:
+# change in the corresponding database.json directory (generated e.g. by genDatabase, there may be multiple)
+# specify <search-key> <tmdb-key>
+# 
+# what is expected:
+# all given episodes in all seasons will be filled up within the database file.
+# Important is, that the files follow the rule <whateverName>_S<seasonNo>_<episodeNo>.<filetype>
+# only seasonNo and episodeNo are used.
+# and: please translate line 59 if you like!
+#
+# NOTE: to be sure, that no file was harmed, the NEW database is written to database2.json
+#       please rename it to database.json, if everything is in place
+
+import sys
+import json
+import requests
+
+searchname = sys.argv[1] 
+tmdbkey = sys.argv[2]
+
+api_url = "https://api.themoviedb.org/3/search/tv?api_key=" + tmdbkey + "&language=de-DE&query="+searchname
+
+print("Requesting " + api_url)
+
+# exit()
+
+response = requests.get(api_url)
+if response.status_code == 200:
+    print(response.content)
+    my_dict = json.loads(response.content.decode('utf-8'))
+    print(my_dict['results'][0])
+else:
+    print("Response: " + response.content)
+    exit()
+
+
+id = my_dict['results'][0]['id']
+series_name = my_dict['results'][0]['name']
+
+f = open("database.json")
+database = json.load(f)
+
+database_entries = len(database)
+
+for item in range(database_entries):
+
+  name = database[item]['name']
+  sub1 = "_S"
+  sub2 = "_"
+  idx1 = name.rfind(sub1)
+  idx2 = name.rfind(sub2)
+
+  seasonNo = name[idx1 + len(sub1): idx2]
+  episodeNo = name[idx2 + len(sub2): len(name)]
+
+  if episodeNo.isnumeric():
+    print("Handling: "+name+" -> Season: " + str(seasonNo) + " Episode:" + str(episodeNo))
+    api_url = "https://api.themoviedb.org/3/tv/" + str(id) + "/season/" + str(seasonNo) + "/episode/" + str(episodeNo) + "?api_key=" + tmdbkey + "&language=de-DE"
+
+    response = requests.get(api_url)
+    if response.status_code == 200:
+      my_dict = json.loads(response.content.decode('utf-8'))
+
+      episode_name = my_dict['name']
+      episode_overview = my_dict['overview']
+
+      database[item]['name'] = episode_name
+      database[item]['desc'] = episode_overview
+
+      database[item]['categories'] = ["serien", series_name, "Staffel " + str(seasonNo)] 
+
+
+      json_object = json.dumps(database, indent=2)
+
+      with open("database2.json", "w") as outfile:
+        outfile.write(json_object)
+ 
+  else:
+    print("failed")
+
