@@ -14,7 +14,7 @@
 
 static sig_atomic_t end = 0;
 
-static void sighandler(int signo)
+static void sighandler(int /* signo */)
 {
     end = 1;
 }

@@ -3,9 +3,10 @@
 
 #include <string>
 #include <fstream>
-#include "../nlohmann/json.hpp"
+#include <iostream>
+#include <filesystem>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
+#include <nlohmann/json.hpp>
 
 class Config {
 
@@ -31,10 +32,10 @@ private:
 
         static C staticFile;
 
-        std::string fullFile(baseConfigPath + '/' + filename);
+        std::filesystem::path fullFile(baseConfigPath + '/' + filename);
 
         if (!staticFile.is_open()) {
-            if (!boost::filesystem::exists(fullFile)) {
+            if (!exists(fullFile)) {
                 std::cerr << "file does not exist! creating <" << fullFile<<">\n";
                 staticFile.open(fullFile, std::fstream::in | std::fstream::out | std::fstream::app); // just create the file
                 //staticFile << "\n" << std::flush;
@@ -76,8 +77,8 @@ public:
     }
 
     bool hasStopPosition() {
-        boost::filesystem::path p{m_currentBasePath + "/" + m_stopPositionFilename};
-        return boost::filesystem::file_size(p) > 0;
+        std::filesystem::path p{m_currentBasePath + "/" + m_stopPositionFilename};
+        return std::filesystem::file_size(p) > 0;
     }
 
     std::ofstream& getLogFile() {
@@ -106,10 +107,10 @@ public:
         }
 
         // in case this direcory does not exist
-        if (!boost::filesystem::is_directory(m_currentBasePath))
+        if (!std::filesystem::is_directory(m_currentBasePath))
         {
-            boost::filesystem::path dir(m_currentBasePath);
-            if(!boost::filesystem::create_directory(dir))
+            std::filesystem::path dir(m_currentBasePath);
+            if(!std::filesystem::create_directory(dir))
             {
                 throw std::invalid_argument("cannot create directory" + m_currentBasePath);
             }

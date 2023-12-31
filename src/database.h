@@ -5,7 +5,7 @@
 #include <string>
 #include <cinttypes>
 #include <algorithm>
-#include "../json/json.hpp"
+#include <nlohmann/json.hpp>
 #include <boost/optional.hpp>
 
 class Database {

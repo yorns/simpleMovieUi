@@ -1,6 +1,6 @@
 #include "OmxPlayer.h"
 #include <regex>
-#include "../json/json.hpp"
+#include <nlohmann/json.hpp>
 
 OmxPlayer::OmxPlayer(boost::asio::io_service& service) :
         m_service(service)

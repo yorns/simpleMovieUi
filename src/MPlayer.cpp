@@ -1,7 +1,7 @@
 #include "MPlayer.h"
 #include <regex>
 #include <boost/regex.hpp>
-#include "../json/json.hpp"
+#include <nlohmann/json.hpp>
 
 MPlayer::MPlayer(boost::asio::io_service& service) :
         m_service(service)

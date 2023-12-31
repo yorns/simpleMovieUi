@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-#include "json/json.hpp"
+#include <nlohmann/json.hpp>
 #include "src/database.h"
 #include <regex>
 #include <fstream>

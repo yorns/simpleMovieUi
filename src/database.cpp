@@ -3,7 +3,7 @@
 #include <tuple>
 #include <fstream>
 #include <iostream>
-#include "json/json.hpp"
+#include <nlohmann/json.hpp>
 
 void Database::insert_if_unique(std::vector<std::string>& list, std::vector<bool>& end, const std::string& name) {
     if (std::find_if(list.begin(), list.end(), [name](const std::string& item){ return item==name; })==list.end()) {
@@ -148,7 +148,7 @@ bool Database::removePartial(const std::string &filepath) {
 
 bool Database::write(const std::string &filename) {
     nlohmann::json j;
-    for(const auto i : movie_db) {
+    for(const auto& i : movie_db) {
         static constexpr const char *m_JsonNameTag{"name"};
         static constexpr const char *m_JsonDescTag{"desc"};
         static constexpr const char *m_JsonUrlTag{"url"};

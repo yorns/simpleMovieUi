@@ -4,9 +4,9 @@
 #include <sstream>
 #include <tuple>
 #include <fstream>
+#include <filesystem>
 #include <snc/client.h>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
 #include <getopt.h>
 
 #include "Key.h"
@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
 #ifndef RUN_ON_HOST
     std::string find_mounts {"/usr/bin/db_find_on_mount.sh"};
 
-    if (boost::filesystem::exists(find_mounts)) {
+    if (std::filesystem::exists(find_mounts)) {
 
     auto addInitialMounts = std::make_unique<boost::process::child>(find_mounts, "/run/media",
                                                                     boost::process::std_out > boost::process::null,
